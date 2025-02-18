@@ -1,0 +1,37 @@
+<style type='text/css'>
+#header {
+   position: running(header);
+   text-align: left;
+   margin-top: -8px;
+   margin-left: 18px;
+}
+#footer {
+   position: running(footer);
+   margin-top: -30px;
+   font-size: 0.8em;
+}
+@page {
+    margin-top: 130px;
+    @top-center{ content: element(header)}
+    @bottom-center { content: element(footer)}
+}
+/* Configuração conteudo pagina  */
+#divPai { margin-top: -20px; margin-bottom: 50px; margin-left: 28px ;margin-right: 28px; }
+.image{ width: 80%; overflow: hidden; }
+.image img{ width: 100%; }
+table { border-collapse: collapse; width: 85%; margin:auto}
+td, th { border: 1px solid;} 
+.text-tiny { font-size: .7em; } 
+.text-small { font-size: .85em; } 
+.text-big { font-size: 1.4em; }
+</style>
+
+<div id='header' >
+<img  style='width: 450px;' src='https://www.tce.rn.gov.br/Content/img/botoes/logo_color.jpg'>
+</div>
+
+<div id='footer' >
+ Av. Presidente Getúlio Vargas, 690 – Ed.Dr.Múcio Vilar Ribeiro Dantas<br>
+ CEP 59012-360 – Petrópolis, Natal/RN – Telefone/Fax: (84) 3642-7332<br>
+ www.tce.rn.gov.br
+</div>

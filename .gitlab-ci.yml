@@ -1,0 +1,7 @@
+include:
+  - project: 'tce/gconf/pipeline'
+    file: 
+      - '/gitlab/ci/common.yml'
+      - '/gitlab/ci/dotnetcore_api.yml'
+variables:
+  SDK_VERSION: "6.0.301"

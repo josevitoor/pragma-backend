@@ -1,0 +1,15 @@
+<style type='text/css'>
+/* Configuração conteudo pagina  */
+#divPai { font-size: 14px; margin-top: -20px; margin-bottom: 50px; margin-left: -10px ;margin-right: -10px; }
+#table1 { border: 1px solid; border-collapse: collapse; width: 90%; margin:auto; margin-bottom: 4px;}
+#th1 { background: #ddd; text-align: left;}
+#th1Center { background: #ddd; text-align: center;}
+
+#td1 { border: 0.5px solid; text-align: left;}
+#td1Center { border: 0.5px solid; text-align: center;}
+
+#table2 { font-size: 14px; border: 1px solid; border-collapse: collapse; width: 90%; margin:auto; margin-bottom: 4px;}
+#th2 { border: 1px solid; text-align: center;}
+
+</style>
+
