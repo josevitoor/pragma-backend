@@ -1,11 +1,8 @@
 ﻿{
   "ConnectionStrings": {
-    // "BdAudit_uBdAudit_config": "Data Source=sql-feature,59012; uid=uBdAudit; password=feature@123; Initial Catalog=BdAudit; MultipleActiveResultSets=true;TrustServerCertificate=True;",
+    "BdIntraTCE_uIntraTCE_Config": "Data Source=sql-feature,59012;uid=uIntraTCE;password=feature@123; Initial Catalog=BDIntraTCE",
+    "BdcAudit_uBDC_Config": "Data Source=sql-feature,59012;uid=usuario_bdc;password=feature@123;Initial Catalog=Bdc_Audit;MultipleActiveResultSets=true",
     "Bdc_uACL_Config": "Data Source=sql-feature,59012;uid=uACL;password=feature@123;Initial Catalog=BDC;MultipleActiveResultSets=true",
-    "BdPlanoFiscalizacaoAnual_uPfa_Config": "Data Source=sql-feature,59012;uid=uPfa;password=feature@123;Initial Catalog=BdPlanoFiscalizacaoAnual;TrustServerCertificate=True;",
-    //"Processo_uComunicaEletronica_Config": "Data Source=bdhotfix,59456;uid=Usuario_SIAIRecepcao;Password=hotfix@123;Initial Catalog=Processo;MultipleActiveResultSets=true",
-    "Bdc_uBDC_Config": "Data Source=sql-feature,59012;uid=usuario_bdc;password=feature@123;Initial Catalog=BDC;MultipleActiveResultSets=true; TrustServerCertificate=True;",
-    "Bdc_uLogErrorApp_Config": "Data Source=sql-feature,59012;uid=uLogErrorApp;password=feature@123;Initial Catalog=BdLogErroAPP;MultipleActiveResultSets=true; TrustServerCertificate=True;",
-    "Bd_Redis_Config": "hml-k8s-servicos.tce.rn.gov.br:30100,password=tce@2023,abortConnect=false,connectTimeout=200,responseTimeout=200"
+    "Processo_uComunicaEletronica_Config": "Data Source=bdhotfix,59456;uid=uSiairecepcao;Password=hotfix@123;Initial Catalog=Processo;MultipleActiveResultSets=true"
   }
 }

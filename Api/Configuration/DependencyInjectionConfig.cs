@@ -5,30 +5,25 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TCE.Base.UnitOfWork;
 
-namespace Application.Configurations
+namespace Application.Configurations;
+/// <summary>
+/// Container de inejeção de dependências a serem utilizadas no projeto
+/// </summary>
+public static class DependencyInjectionConfig
 {
     /// <summary>
-    /// Container de inejeção de dependências a serem utilizadas no projeto
+    /// Container de injeção de dependência a serem utilzizadas no projeto
     /// </summary>
-    public static class DependencyInjectionConfig
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    public static IServiceCollection ResolveDependencies(this IServiceCollection services, IConfiguration configuration)
     {
-        /// <summary>
-        /// Container de injeção de dependência a serem utilzizadas no projeto
-        /// </summary>
-        /// <param name="services"></param>
-        /// <param name="configuration"></param>
-        /// <returns></returns>
-        public static IServiceCollection ResolveDependencies(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddSingleton(configuration);
-            services.AddTransient<IUnitOfWork, UnitOfWork<AutomationContext>>();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddAutoMapper(typeof(IMapper), typeof(Mapper));
+        services.AddSingleton(configuration);
+        services.AddTransient<IUnitOfWork, UnitOfWork<AutomationContext>>();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddAutoMapper(typeof(IMapper), typeof(Mapper));
 
-            // Services (deixar em ordem alfabética):
-
-
-            return services;
-        }
+        return services;
     }
 }

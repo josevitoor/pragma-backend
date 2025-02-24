@@ -1,8 +1,6 @@
-﻿namespace Application.ApiPagination
+﻿namespace Application.ApiPagination;
+public class PageParams
 {
-    public class PageParams
-    {
-        public int Length { get; set; }
-        public int Start { get; set; }
-    }
+    public int Length { get; set; }
+    public int Start { get; set; }
 }

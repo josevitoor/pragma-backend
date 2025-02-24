@@ -1,25 +1,23 @@
 
 using AutoMapper;
 
-namespace Application.AutoMapper
+namespace Application.AutoMapper;
+/// <summary>
+/// Classe geral de mapeamento
+/// </summary>
+public static class ConfigureMap
 {
     /// <summary>
-    /// Classe geral de mapeamento
+    /// Configurar mapeamentos
     /// </summary>
-    public static class ConfigureMap
+    public static IMapper Configure()
     {
-        /// <summary>
-        /// Configurar mapeamentos
-        /// </summary>
-        public static IMapper Configure()
+        var mapperConfig = new MapperConfiguration(cfg =>
         {
-            var mapperConfig = new MapperConfiguration(cfg =>
-            {
-                
-            });
 
-            IMapper mapper = mapperConfig.CreateMapper();
-            return mapper;
-        }
+        });
+
+        IMapper mapper = mapperConfig.CreateMapper();
+        return mapper;
     }
 }
