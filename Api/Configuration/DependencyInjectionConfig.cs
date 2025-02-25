@@ -3,6 +3,7 @@ using Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Services;
 using TCE.Base.UnitOfWork;
 
 namespace Application.Configurations;
@@ -23,6 +24,7 @@ public static class DependencyInjectionConfig
         services.AddTransient<IUnitOfWork, UnitOfWork<AutomationContext>>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddAutoMapper(typeof(IMapper), typeof(Mapper));
+        services.AddTransient<IInformationService, InformationService>();
 
         return services;
     }

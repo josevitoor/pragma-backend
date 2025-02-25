@@ -1,17 +1,14 @@
 using Audit.EntityFramework;
+using Infra.Mapping;
 using Microsoft.EntityFrameworkCore;
 
-namespace Domain
+namespace Domain;
+public class AutomationContext : AuditDbContext
 {
-    //public class SisPfaContext : DbContext
-    public class AutomationContext : AuditDbContext
+    public AutomationContext(DbContextOptions<AutomationContext> options) : base(options) { }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        public AutomationContext(DbContextOptions<AutomationContext> options) : base(options) { }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            // Deixar em ordem alfabética
-
-        }
+        modelBuilder.ApplyConfiguration(new InformationEntityConfiguration());
     }
 }

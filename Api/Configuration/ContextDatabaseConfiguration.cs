@@ -23,7 +23,7 @@ public static class ContextDatabaseConfiguration
         if (configuration.GetValue<string>("ApplicationInfo:Environment") == "workstation")
         {
             services.AddDbContextPool<AutomationContext>(options =>
-                   options.UseSqlServer(configuration["ConnectionStrings:BdPlanoFiscalizacaoAnual_uPfa_Config"],
+                   options.UseSqlServer(configuration["ConnectionStrings:BdAutomationTCE_uAutomationTCE_Config"],
                     sqlServerOptions => sqlServerOptions
                             .UseNetTopologySuite()
                             .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery))
@@ -34,7 +34,7 @@ public static class ContextDatabaseConfiguration
         else
         {
             services.AddDbContextPool<AutomationContext>(options =>
-                options.UseSqlServer(configuration["ConnectionStrings:BdPlanoFiscalizacaoAnual_uPfa_Config"],
+                options.UseSqlServer(configuration["ConnectionStrings:BdAutomationTCE_uAutomationTCE_Config"],
                 sqlServerOptions => sqlServerOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
         }
 

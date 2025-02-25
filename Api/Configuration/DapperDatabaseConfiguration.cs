@@ -19,9 +19,9 @@ public static class DapperDatabaseConfiguration
     /// <returns></returns>
     public static IServiceCollection ConfigureDapper(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDapper(options => options.ConnectionString = configuration["ConnectionStrings:BdPlanoFiscalizacaoAnual_uPfa_Config"]);
+        services.AddDapper(options => options.ConnectionString = configuration["ConnectionStrings:BdAutomationTCE_uAutomationTCE_Config"]);
 
-        services.AddTransient<IDbConnection>((sp) => new SqlConnection(configuration["ConnectionStrings:BdPlanoFiscalizacaoAnual_uPfa_Config"]));
+        services.AddTransient<IDbConnection>((sp) => new SqlConnection(configuration["ConnectionStrings:BdAutomationTCE_uAutomationTCE_Config"]));
 
         return services;
     }

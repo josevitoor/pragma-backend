@@ -1,8 +1,5 @@
 ﻿{
   "ConnectionStrings": {
-    "BdIntraTCE_uIntraTCE_Config": "Data Source=sql-feature,59012;uid=uIntraTCE;password=feature@123; Initial Catalog=BDIntraTCE",
-    "BdcAudit_uBDC_Config": "Data Source=sql-feature,59012;uid=usuario_bdc;password=feature@123;Initial Catalog=Bdc_Audit;MultipleActiveResultSets=true",
-    "Bdc_uACL_Config": "Data Source=sql-feature,59012;uid=uACL;password=feature@123;Initial Catalog=BDC;MultipleActiveResultSets=true",
-    "Processo_uComunicaEletronica_Config": "Data Source=bdhotfix,59456;uid=uSiairecepcao;Password=hotfix@123;Initial Catalog=Processo;MultipleActiveResultSets=true"
+    "BdAutomationTCE_uAutomationTCE_Config": "Data Source=sql-feature,59012;uid=uIntraTCE;password=feature@123; Initial Catalog=BDIntraTCE"
   }
 }
