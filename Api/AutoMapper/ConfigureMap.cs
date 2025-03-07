@@ -14,7 +14,7 @@ public static class ConfigureMap
     {
         var mapperConfig = new MapperConfiguration(cfg =>
         {
-
+            cfg.AddProfile<InformationMap>();
         });
 
         IMapper mapper = mapperConfig.CreateMapper();

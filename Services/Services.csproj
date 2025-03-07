@@ -18,6 +18,7 @@
     <PackageReference Include="TCE.TemplateEmail" Version="1.0.4" />
 	  <PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="5.1.5" />
   	<PackageReference Include="TCE.Base.Net6" Version="1.0.26" />
+    <PackageReference Include="Scriban" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
