@@ -6,11 +6,11 @@ using TCE.Base.UnitOfWork;
 using Scriban;
 using System.IO;
 using Domain.Filter;
-using System;
 
 namespace Services;
 public class InformationService : BaseService<Information>, IInformationService
 {
+    private const string TemplatesDirectory = "Templates/Automation";
     public InformationService(IUnitOfWork uow) : base(uow)
     {
     }
@@ -22,27 +22,33 @@ public class InformationService : BaseService<Information>, IInformationService
 
     public async Task GenerateCrudFiles(InformationFilter informationFilter)
     {
-        await GenerateControllerFile(informationFilter.EntityName, informationFilter.ProjectPath);
+        await GenerateFileAsync("Controller", informationFilter.EntityName, informationFilter.ProjectPath, "Api/Controllers");
+        await GenerateFileAsync("Entity", informationFilter.EntityName, informationFilter.ProjectPath, "Domain/Entities", informationFilter.TableName);
+        await GenerateFileAsync("EntityConfiguration", informationFilter.EntityName, informationFilter.ProjectPath, "Domain/Mapping", informationFilter.TableName);
     }
 
-    private async Task GenerateControllerFile(string entityName, string projectPath)
+    private async Task GenerateFileAsync(string fileType, string entityName, string projectPath, string targetDirectory, string tableName = null)
     {
-        string controllerTemplatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "Automation", "ControllerTemplate.tlp");
 
-        if (!File.Exists(controllerTemplatePath))
-            throw new FileNotFoundException($"Template não encontrado: {controllerTemplatePath}");
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), TemplatesDirectory, fileType + "Template.tlp");
 
-        var controllerTemplateContent = File.ReadAllText(controllerTemplatePath);
-        var controllerTemplate = Template.Parse(controllerTemplateContent);
-        string varEntityName = Char.ToLowerInvariant(entityName[0]) + entityName.Substring(1);
-        var controllerOutput = controllerTemplate.Render(new { entityName, varEntityName });
+        if (!File.Exists(templatePath))
+            throw new FileNotFoundException($"Template não encontrado: {templatePath}");
 
-        string controllersDirectory = Path.Combine(projectPath, "Api", "Controllers", entityName);
+        var templateContent = File.ReadAllText(templatePath);
+        var template = Template.Parse(templateContent);
 
-        if (!Directory.Exists(controllersDirectory))
-            Directory.CreateDirectory(controllersDirectory);
+        var infoTable = tableName != null ? await GetInfoByTableName(tableName) : null;
 
-        string outputPath = Path.Combine(controllersDirectory, $"{entityName}Controller.cs");
-        await File.WriteAllTextAsync(outputPath, controllerOutput);
+        var output = template.Render(new { entityName, infoTable });
+
+        string directoryPath = Path.Combine(projectPath, targetDirectory);
+        if (!Directory.Exists(directoryPath))
+            Directory.CreateDirectory(directoryPath);
+
+        string fileName = fileType == "Entity" ? entityName + ".cs" : entityName + fileType + ".cs";
+        string outputPath = Path.Combine(directoryPath, fileName);
+
+        await File.WriteAllTextAsync(outputPath, output);
     }
 }

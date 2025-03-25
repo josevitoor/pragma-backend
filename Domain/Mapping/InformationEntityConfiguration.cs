@@ -30,4 +30,3 @@ public class InformationEntityConfiguration : IEntityTypeConfiguration<Informati
             .HasColumnName("CHARACTER_MAXIMUM_LENGTH");
     }
 }
-

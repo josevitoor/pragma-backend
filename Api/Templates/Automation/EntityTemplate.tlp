@@ -1,0 +1,14 @@
+{{- for column in info_table -}}
+{{- if column.data_type == "smalldatetime" || column.data_type == "datetime2" || column.data_type == "date" || column.data_type == "time" -}}
+using System;
+{{- break -}}
+{{- end -}}
+{{ end }}
+namespace Domain.Entities;
+
+public class {{ entity_name }}
+{ 
+{{- for column in info_table }}
+    public {{ column.data_type | string.replace "tinyint" "byte" | string.replace "char" "string" | string.replace "bit" "bool" | string.replace "smalldatetime" "DateTime" | string.replace "datetime2" "DateTime" | string.replace "date" "DateTime" | string.replace "time" "TimeSpan" | string.replace "varchar" "string" | string.replace "nvarchar" "string" }}{{ if column.is_nullable == "YES" }}?{{ end }} {{ column.column_name }} { get; set; }
+{{ end -}}
+}

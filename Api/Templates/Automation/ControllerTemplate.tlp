@@ -39,8 +39,8 @@ public class {{ entity_name }}Controller : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<{{ entity_name }}Get>), 200)]
     public async Task<IActionResult> GetAllAsync()
     {
-        IEnumerable<{{ entity_name }}> {{ var_entity_name }}s = await _service.GetAllAsync();
-        IEnumerable<{{ entity_name }}Get> result = _mapper.Map<IEnumerable<{{ entity_name }}Get>>({{ var_entity_name }}s);
+        IEnumerable<{{ entity_name }}> {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s = await _service.GetAllAsync();
+        IEnumerable<{{ entity_name }}Get> result = _mapper.Map<IEnumerable<{{ entity_name }}Get>>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s);
         return Ok(result);
     }
 
@@ -56,11 +56,11 @@ public class {{ entity_name }}Controller : ControllerBase
     [ProducesResponseType(typeof({{ entity_name }}GetById), 200)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
-        {{ entity_name }} {{ var_entity_name }} = await _service.GetByIdAsync(id);
-        if ({{ var_entity_name }} == null)
+        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = await _service.GetByIdAsync(id);
+        if ({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} == null)
             return NotFound();
 
-        {{ entity_name }}GetById result = _mapper.Map<{{ entity_name }}GetById>({{ var_entity_name }});
+        {{ entity_name }}GetById result = _mapper.Map<{{ entity_name }}GetById>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
         return Ok(result);
     }
 
@@ -76,8 +76,8 @@ public class {{ entity_name }}Controller : ControllerBase
     [ProducesResponseType(typeof({{ entity_name }}), 201)]
     public async Task<IActionResult> CreateAsync([FromBody] {{ entity_name }}Post dto)
     {
-        {{ entity_name }} {{ var_entity_name }} = _mapper.Map<{{ entity_name }}>(dto);
-        {{ entity_name }} result = await _service.AddAsync({{ var_entity_name }});
+        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = _mapper.Map<{{ entity_name }}>(dto);
+        {{ entity_name }} result = await _service.AddAsync({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
         return StatusCode(201, result);
     }
 
@@ -94,12 +94,12 @@ public class {{ entity_name }}Controller : ControllerBase
     [ProducesResponseType(typeof({{ entity_name }}), 200)]
     public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] {{ entity_name }}Post dto)
     {
-       {{ entity_name }} {{ var_entity_name }} = await _service.GetByIdAsync(id);
-        if ({{ var_entity_name }} == null)
+       {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = await _service.GetByIdAsync(id);
+        if ({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} == null)
             return NotFound();
 
-        {{ entity_name }} {{ var_entity_name }}Update = _mapper.Map(dto, {{ var_entity_name }});
-        var result = await _service.UpdateAsync({{ var_entity_name }}Update);
+        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}Update = _mapper.Map(dto, {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
+        var result = await _service.UpdateAsync({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}Update);
         return Ok(result);
     }
 
@@ -115,11 +115,11 @@ public class {{ entity_name }}Controller : ControllerBase
     [ProducesResponseType(204)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
-        {{ entity_name  }} {{ var_entity_name }} = await _service.GetByIdAsync(id);
+        {{ entity_name  }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = await _service.GetByIdAsync(id);
         if ({{ entity_name  }} == null)
             return NotFound();
 
-        await _service.DeleteAsync({{ var_entity_name }});
+        await _service.DeleteAsync({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
         return NoContent();
     }
 }
