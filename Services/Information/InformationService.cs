@@ -25,6 +25,11 @@ public class InformationService : BaseService<Information>, IInformationService
         await GenerateFileAsync("Controller", informationFilter.EntityName, informationFilter.ProjectPath, "Api/Controllers");
         await GenerateFileAsync("Entity", informationFilter.EntityName, informationFilter.ProjectPath, "Domain/Entities", informationFilter.TableName);
         await GenerateFileAsync("EntityConfiguration", informationFilter.EntityName, informationFilter.ProjectPath, "Domain/Mapping", informationFilter.TableName);
+        await GenerateFileAsync("PostDTO", informationFilter.EntityName, informationFilter.ProjectPath, "Domain/DTO/Request", informationFilter.TableName);
+        await GenerateFileAsync("GetDTO", informationFilter.EntityName, informationFilter.ProjectPath, "Domain/DTO/Response", informationFilter.TableName);
+        await GenerateFileAsync("ServiceInterface", informationFilter.EntityName, informationFilter.ProjectPath, $"Services/{informationFilter.EntityName}", informationFilter.TableName);
+        await GenerateFileAsync("Service", informationFilter.EntityName, informationFilter.ProjectPath, $"Services/{informationFilter.EntityName}", informationFilter.TableName);
+        await GenerateFileAsync("Validator", informationFilter.EntityName, informationFilter.ProjectPath, $"Services/{informationFilter.EntityName}", informationFilter.TableName);
     }
 
     private async Task GenerateFileAsync(string fileType, string entityName, string projectPath, string targetDirectory, string tableName = null)
@@ -46,7 +51,13 @@ public class InformationService : BaseService<Information>, IInformationService
         if (!Directory.Exists(directoryPath))
             Directory.CreateDirectory(directoryPath);
 
-        string fileName = fileType == "Entity" ? entityName + ".cs" : entityName + fileType + ".cs";
+        string fileName = fileType switch
+        {
+            "ServiceInterface" => "I" + entityName + "Service.cs",
+            "Entity" => entityName + ".cs",
+            _ => entityName + fileType + ".cs"
+        };
+
         string outputPath = Path.Combine(directoryPath, fileName);
 
         await File.WriteAllTextAsync(outputPath, output);

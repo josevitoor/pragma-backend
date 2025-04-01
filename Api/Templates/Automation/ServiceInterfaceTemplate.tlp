@@ -1,0 +1,14 @@
+using Domain.Entities;
+using TCE.Base.Services;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
+namespace Services;
+
+public interface I{{ entity_name }}Service : IService<{{ entity_name }}>
+{
+    public Task<IEnumerable<{{ entity_name }}>> GetAllAsync();
+    public Task<{{ entity_name }}> GetByIdAsync(int id);
+    public {{ entity_name }} Add({{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
+    public {{ entity_name }} Update({{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
+}

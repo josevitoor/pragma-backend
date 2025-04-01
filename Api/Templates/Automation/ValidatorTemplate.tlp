@@ -1,0 +1,22 @@
+using Domain.Entities;
+using FluentValidation;
+
+namespace Services;
+
+public class {{ entity_name }}Validator : AbstractValidator<{{ entity_name }}>
+{
+    public {{ entity_name }}Validator()
+    {
+{{- for column in info_table offset:1 }}
+        RuleFor(p => p.{{ column.column_name }})
+            {{- if column.is_nullable == "NO" -}}
+                {{- if column.data_type == "nvarchar" || column.data_type == "varchar" || column.data_type == "nchar" || column.data_type == "char" || column.data_type == "ntext" || column.data_type == "text" -}}
+                    .NotEmpty(){{- else }}.NotNull()
+                {{- end }}
+            {{- end }}
+            {{- if column.data_type == "nvarchar" || column.data_type == "varchar" || column.data_type == "nchar" || column.data_type == "char" || column.data_type == "ntext" || column.data_type == "text" -}}
+                .MaximumLength({{ column.max_length }})
+            {{- end }};
+{{- end }}
+    }
+}

@@ -4,9 +4,9 @@ using System;
 {{- break -}}
 {{- end -}}
 {{ end }}
-namespace Domain.Entities;
+namespace Domain.DTO.Response;
 
-public class {{ entity_name }}
+public class {{ entity_name }}Get
 { 
 {{- for column in info_table }}
     public {{ 

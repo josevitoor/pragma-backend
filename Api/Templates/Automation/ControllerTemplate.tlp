@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 using Domain.Entities;
-using Domain.DTO.{{ entity_name }};
+using Domain.DTO.Response;
+using Domain.DTO.Request;
 using AutoMapper;
 
 namespace Application.Controllers;
@@ -53,14 +53,14 @@ public class {{ entity_name }}Controller : ControllerBase
     /// <response code="404">Não encontrado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof({{ entity_name }}GetById), 200)]
+    [ProducesResponseType(typeof({{ entity_name }}Get), 200)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = await _service.GetByIdAsync(id);
         if ({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} == null)
             return NotFound();
 
-        {{ entity_name }}GetById result = _mapper.Map<{{ entity_name }}GetById>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
+        {{ entity_name }}Get result = _mapper.Map<{{ entity_name }}Get>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
         return Ok(result);
     }
 
@@ -74,10 +74,10 @@ public class {{ entity_name }}Controller : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [ProducesResponseType(typeof({{ entity_name }}), 201)]
-    public async Task<IActionResult> CreateAsync([FromBody] {{ entity_name }}Post dto)
+    public IActionResult CreateAsync([FromBody] {{ entity_name }}Post dto)
     {
         {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = _mapper.Map<{{ entity_name }}>(dto);
-        {{ entity_name }} result = await _service.AddAsync({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
+        {{ entity_name }} result = _service.Add({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
         return StatusCode(201, result);
     }
 
@@ -92,14 +92,14 @@ public class {{ entity_name }}Controller : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpPut("{id}")]
     [ProducesResponseType(typeof({{ entity_name }}), 200)]
-    public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] {{ entity_name }}Post dto)
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] {{ entity_name }}Post dto)
     {
        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = await _service.GetByIdAsync(id);
         if ({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} == null)
             return NotFound();
 
         {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}Update = _mapper.Map(dto, {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
-        var result = await _service.UpdateAsync({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}Update);
+        var result = _service.Update({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}Update);
         return Ok(result);
     }
 
@@ -113,13 +113,13 @@ public class {{ entity_name }}Controller : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+    public async Task<IActionResult> Delete([FromRoute] int id)
     {
         {{ entity_name  }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = await _service.GetByIdAsync(id);
-        if ({{ entity_name  }} == null)
+        if ({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} == null)
             return NotFound();
 
-        await _service.DeleteAsync({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
+        _service.Delete({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
         return NoContent();
     }
 }

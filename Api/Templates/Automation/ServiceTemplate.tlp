@@ -1,0 +1,37 @@
+using Domain.Entities;
+using TCE.Base.Services;
+using TCE.Base.UnitOfWork;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
+namespace Services;
+public class {{ entity_name }}Service : BaseService<{{ entity_name }}>, I{{ entity_name }}Service
+{
+    public {{ entity_name }}Service(IUnitOfWork uow) : base(uow)
+    {
+    }
+
+    public async Task<IEnumerable<{{ entity_name }}>> GetAllAsync()
+    {
+        IEnumerable<{{ entity_name }}> {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s = await base.GetAllAsync();
+
+        return {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s;
+    }
+
+    public async Task<{{ entity_name }}> GetByIdAsync(int id)
+    {
+        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = await base.GetByIdAsync(predicate: item => item.{{ info_table[0].column_name }} == id);
+
+        return {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }};
+    }
+
+    public {{ entity_name }} Add({{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }})
+    {
+        return base.Add<{{ entity_name }}Validator>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
+    }
+
+    public {{ entity_name }} Update({{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }})
+    {
+        return base.Update<{{ entity_name }}Validator>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
+    }
+}
