@@ -1,0 +1,21 @@
+using AutoMapper;
+using Domain.DTO.Request;
+using Domain.DTO.Response;
+using Domain.Entities;
+
+namespace Application.AutoMapper;
+
+/// <summary>
+/// Classe para o mapeamento de {{ entity_name }}
+/// </summary>
+public class {{ entity_name }}Map : Profile
+{
+    /// <summary>
+    /// Construtor do mapeamento de {{ entity_name }}
+    /// </summary>
+    public {{ entity_name }}Map()
+    {
+        CreateMap<{{ entity_name }}Post, {{ entity_name }}>().ReverseMap();
+        CreateMap<{{ entity_name }}Get, {{ entity_name }}>().ReverseMap();
+    }
+}
