@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Domain.DTO.Response;
 using Domain.Entities;
-using Domain.Filter;
 using Microsoft.AspNetCore.Mvc;
 using Services;
+using TceCore.ACL;
 
 namespace Application.Controllers;
 
@@ -17,6 +17,7 @@ namespace Application.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/[controller]")]
+[AuthorizeTCE(2)]
 public class InformationController : ControllerBase
 {
     private readonly IInformationService _informationService;
@@ -66,20 +67,5 @@ public class InformationController : ControllerBase
         IEnumerable<InformationByTableName> informationsMapped = _mapper.Map<IEnumerable<InformationByTableName>>(informations);
 
         return Ok(informationsMapped);
-    }
-
-    /// <summary>
-    /// Retorna as informações das colunas de uma tabela do banco de dados pelo seu nome.
-    /// </summary>
-    /// <param name="informationFilter"></param>
-    /// <response code="200">Sucesso</response>
-    /// <response code="401">Não autorizado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    [HttpPost("generate")]
-    [ProducesResponseType(200)]
-    public async Task<IActionResult> GenerateCrudFiles([FromBody] InformationFilter informationFilter)
-    {
-        await _informationService.GenerateCrudFiles(informationFilter);
-        return Ok();
     }
 }

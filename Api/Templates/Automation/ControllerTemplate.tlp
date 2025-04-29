@@ -6,6 +6,7 @@ using Domain.Entities;
 using Domain.DTO.Response;
 using Domain.DTO.Request;
 using AutoMapper;
+using TceCore.ACL;
 
 namespace Application.Controllers;
 /// <summary>

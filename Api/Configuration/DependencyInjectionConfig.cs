@@ -25,6 +25,7 @@ public static class DependencyInjectionConfig
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddAutoMapper(typeof(IMapper), typeof(Mapper));
         services.AddTransient<IInformationService, InformationService>();
+        services.AddTransient<IGenerateService, GenerateService>();
 
         return services;
     }
