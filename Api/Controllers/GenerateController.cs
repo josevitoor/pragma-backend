@@ -13,7 +13,7 @@ namespace Application.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/[controller]")]
-[AuthorizeTCE(2)]
+[AuthorizeTCE]
 public class GenerateController : ControllerBase
 {
     private readonly IGenerateService _generateService;
@@ -27,7 +27,7 @@ public class GenerateController : ControllerBase
     }
 
     /// <summary>
-    /// Gera código baseado em templates
+    /// Gerar código baseado em template
     /// </summary>
     /// <param name="informationFilter"></param>
     /// <response code="200">Sucesso</response>

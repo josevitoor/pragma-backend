@@ -17,7 +17,7 @@ namespace Application.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/[controller]")]
-[AuthorizeTCE(2)]
+[AuthorizeTCE]
 public class InformationController : ControllerBase
 {
     private readonly IInformationService _informationService;
