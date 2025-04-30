@@ -1,5 +1,5 @@
 namespace Domain.Filter;
-public class InformationFilter
+public class GenerateBackendFilter
 {
     public string TableName { get; set; }
     public string EntityName { get; set; }

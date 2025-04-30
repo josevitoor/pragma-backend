@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities;
 using TCE.Base.Services;
@@ -14,5 +15,14 @@ public class InformationService : BaseService<Information>, IInformationService
     public async Task<IEnumerable<Information>> GetInfoByTableName(string tableName)
     {
         return await GetAllAsync(x => x.TableName == tableName);
+    }
+
+    public async Task<IEnumerable<string>> GetAllTableSelect()
+    {
+        return (await GetAllAsync(
+            selector: query => query.Select(x => x.TableName)
+        ))
+        .Distinct()
+        .ToList();
     }
 }

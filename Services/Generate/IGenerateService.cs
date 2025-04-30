@@ -5,5 +5,5 @@ namespace Services;
 
 public interface IGenerateService
 {
-    Task GenerateCrudFiles(InformationFilter informationFilter);
+    Task GenerateBackendCrudFiles(GenerateBackendFilter generateBackendFilter);
 }

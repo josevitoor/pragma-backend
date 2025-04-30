@@ -68,4 +68,19 @@ public class InformationController : ControllerBase
 
         return Ok(informationsMapped);
     }
+
+    /// <summary>
+    /// Retorna todos os nomes de tabela para select
+    /// </summary>
+    /// <response code="200">Sucesso</response>
+    /// <response code="401">Não autorizado</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [HttpGet("table-name")]
+    [ProducesResponseType(typeof(IEnumerable<string>), 200)]
+    public async Task<IActionResult> GetAllTableSelect()
+    {
+        IEnumerable<string> informations = await _informationService.GetAllTableSelect();
+
+        return Ok(informations);
+    }
 }

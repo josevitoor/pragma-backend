@@ -8,4 +8,5 @@ namespace Services;
 public interface IInformationService : IService<Information>
 {
     Task<IEnumerable<Information>> GetInfoByTableName(string tableName);
+    Task<IEnumerable<string>> GetAllTableSelect();
 }
