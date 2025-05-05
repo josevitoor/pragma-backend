@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 namespace Services;
 public class GenerateService : IGenerateService
 {
-    private const string TemplatesDirectory = "Templates/Automation";
+    private const string TemplatesDirectory = "Templates\\Automation";
     private readonly IInformationService _informationService;
     public GenerateService(IInformationService informationService)
     {
@@ -17,26 +17,26 @@ public class GenerateService : IGenerateService
 
     public async Task GenerateBackendCrudFiles(GenerateBackendFilter generateBackendFilter)
     {
-        await GenerateFileAsync("Controller", generateBackendFilter.EntityName, generateBackendFilter.ProjectPath, "Api/Controllers");
-        await GenerateFileAsync("Entity", generateBackendFilter.EntityName, generateBackendFilter.ProjectPath, "Domain/Entities", generateBackendFilter.TableName);
-        await GenerateFileAsync("EntityConfiguration", generateBackendFilter.EntityName, generateBackendFilter.ProjectPath, "Domain/Mapping", generateBackendFilter.TableName);
-        await GenerateFileAsync("PostDTO", generateBackendFilter.EntityName, generateBackendFilter.ProjectPath, "Domain/DTO/Request", generateBackendFilter.TableName);
-        await GenerateFileAsync("GetDTO", generateBackendFilter.EntityName, generateBackendFilter.ProjectPath, "Domain/DTO/Response", generateBackendFilter.TableName);
-        await GenerateFileAsync("ServiceInterface", generateBackendFilter.EntityName, generateBackendFilter.ProjectPath, $"Services/{generateBackendFilter.EntityName}", generateBackendFilter.TableName);
-        await GenerateFileAsync("Service", generateBackendFilter.EntityName, generateBackendFilter.ProjectPath, $"Services/{generateBackendFilter.EntityName}", generateBackendFilter.TableName);
-        await GenerateFileAsync("Validator", generateBackendFilter.EntityName, generateBackendFilter.ProjectPath, $"Services/{generateBackendFilter.EntityName}", generateBackendFilter.TableName);
-        await GenerateFileAsync("Mapper", generateBackendFilter.EntityName, generateBackendFilter.ProjectPath, $"Api/AutoMapper", generateBackendFilter.TableName);
-        await ModifyFileWithTemplateAsync(filePath: Path.Combine(generateBackendFilter.ProjectPath, "Api/AutoMapper/ConfigureMap.cs"),
+        await GenerateFileAsync("Controller", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, "Api\\Controllers");
+        await GenerateFileAsync("Entity", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, "Domain\\Entities", generateBackendFilter.TableName);
+        await GenerateFileAsync("EntityConfiguration", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, "Domain\\Mapping", generateBackendFilter.TableName);
+        await GenerateFileAsync("PostDTO", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, "Domain\\DTO\\Request", generateBackendFilter.TableName);
+        await GenerateFileAsync("GetDTO", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, "Domain\\DTO\\Response", generateBackendFilter.TableName);
+        await GenerateFileAsync("ServiceInterface", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, $"Services\\{generateBackendFilter.EntityName}", generateBackendFilter.TableName);
+        await GenerateFileAsync("Service", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, $"Services\\{generateBackendFilter.EntityName}", generateBackendFilter.TableName);
+        await GenerateFileAsync("Validator", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, $"Services\\{generateBackendFilter.EntityName}", generateBackendFilter.TableName);
+        await GenerateFileAsync("Mapper", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, $"Api\\AutoMapper", generateBackendFilter.TableName);
+        await ModifyFileWithTemplateAsync(filePath: Path.Combine(generateBackendFilter.ProjectApiPath, "Api\\AutoMapper\\ConfigureMap.cs"),
                                             templateModel: new { generateBackendFilter.EntityName },
                                             insertAfterRegex: @"var\s+mapperConfig\s*=\s*new\s+MapperConfiguration\s*\(\s*cfg\s*=>\s*\{",
                                             templateText: "cfg.AddProfile<{{ entity_name }}Map>();");
-        await ModifyFileWithTemplateAsync(filePath: Path.Combine(generateBackendFilter.ProjectPath, "Api/Configuration/DependencyInjectionConfig.cs"),
+        await ModifyFileWithTemplateAsync(filePath: Path.Combine(generateBackendFilter.ProjectApiPath, "Api\\Configuration\\DependencyInjectionConfig.cs"),
                                             templateModel: new { generateBackendFilter.EntityName },
                                             insertAfter: "services.AddSingleton(configuration);",
                                             templateText: "services.AddTransient<I{{ entity_name }}Service, {{ entity_name }}Service>();");
     }
 
-    private async Task GenerateFileAsync(string fileType, string entityName, string projectPath, string targetDirectory, string tableName = null)
+    private async Task GenerateFileAsync(string fileType, string entityName, string projectApiPath, string targetDirectory, string tableName = null)
     {
 
         string templatePath = Path.Combine(Directory.GetCurrentDirectory(), TemplatesDirectory, fileType + "Template.tlp");
@@ -51,7 +51,7 @@ public class GenerateService : IGenerateService
 
         var output = template.Render(new { entityName, infoTable });
 
-        string directoryPath = Path.Combine(projectPath, targetDirectory);
+        string directoryPath = Path.Combine(projectApiPath, targetDirectory);
         if (!Directory.Exists(directoryPath))
             Directory.CreateDirectory(directoryPath);
 
