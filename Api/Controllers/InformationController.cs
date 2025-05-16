@@ -83,4 +83,19 @@ public class InformationController : ControllerBase
 
         return Ok(informations);
     }
+
+    /// <summary>
+    /// Realiza conexão no banco de dados com os parâmetros de conexão passados
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <response code="200">Sucesso</response>
+    /// <response code="401">Não autorizado</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [HttpPost("bd-connection")]
+    public async Task<IActionResult> BdConnection([FromBody] ConnectionFilter filter)
+    {
+        await _informationService.BdConnection(filter);
+
+        return Ok();
+    }
 }

@@ -40,4 +40,18 @@ public class GenerateController : ControllerBase
         await _generateService.GenerateBackendCrudFiles(generateBackendFilter);
         return Ok();
     }
+
+    /// <summary>
+    /// Validar caminho para geração dos arquivos
+    /// </summary>
+    /// <param name="projectRootPath"></param>
+    /// <response code="200">Sucesso</response>
+    /// <response code="401">Não autorizado</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [HttpGet("validate-structure")]
+    public IActionResult ValidateStructure([FromQuery] string projectRootPath)
+    {
+        _generateService.ValidateProjectStructure(projectRootPath);
+        return Ok();
+    }
 }

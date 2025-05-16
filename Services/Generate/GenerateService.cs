@@ -2,8 +2,8 @@ using System.Threading.Tasks;
 using Scriban;
 using System.IO;
 using Domain.Filter;
-using System;
 using System.Text.RegularExpressions;
+using FluentValidation;
 
 namespace Services;
 public class GenerateService : IGenerateService
@@ -26,30 +26,52 @@ public class GenerateService : IGenerateService
         await GenerateFileAsync("Service", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, $"Services\\{generateBackendFilter.EntityName}", generateBackendFilter.TableName);
         await GenerateFileAsync("Validator", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, $"Services\\{generateBackendFilter.EntityName}", generateBackendFilter.TableName);
         await GenerateFileAsync("Mapper", generateBackendFilter.EntityName, generateBackendFilter.ProjectApiPath, $"Api\\AutoMapper", generateBackendFilter.TableName);
-        await ModifyFileWithTemplateAsync(filePath: Path.Combine(generateBackendFilter.ProjectApiPath, "Api\\AutoMapper\\ConfigureMap.cs"),
-                                            templateModel: new { generateBackendFilter.EntityName },
-                                            insertAfterRegex: @"var\s+mapperConfig\s*=\s*new\s+MapperConfiguration\s*\(\s*cfg\s*=>\s*\{",
-                                            templateText: "cfg.AddProfile<{{ entity_name }}Map>();");
-        await ModifyFileWithTemplateAsync(filePath: Path.Combine(generateBackendFilter.ProjectApiPath, "Api\\Configuration\\DependencyInjectionConfig.cs"),
-                                            templateModel: new { generateBackendFilter.EntityName },
-                                            insertAfter: "services.AddSingleton(configuration);",
-                                            templateText: "services.AddTransient<I{{ entity_name }}Service, {{ entity_name }}Service>();");
+
+        await ModifyFileWithTemplateAsync(
+            filePath: Path.Combine(generateBackendFilter.ProjectApiPath, "Api\\AutoMapper\\ConfigureMap.cs"),
+            templateModel: new { generateBackendFilter.EntityName },
+            insertAfterRegex: @"var\s+mapperConfig\s*=\s*new\s+MapperConfiguration\s*\(\s*cfg\s*=>\s*\{",
+            templateText: "cfg.AddProfile<{{ entityName }}Map>();"
+        );
+
+        await ModifyFileWithTemplateAsync(
+            filePath: Path.Combine(generateBackendFilter.ProjectApiPath, "Api\\Configuration\\DependencyInjectionConfig.cs"),
+            templateModel: new { generateBackendFilter.EntityName },
+            insertAfter: "services.AddSingleton(configuration);",
+            templateText: "services.AddTransient<I{{ entityName }}Service, {{ entityName }}Service>();"
+        );
+    }
+
+    public void ValidateProjectStructure(string projectRootPath)
+    {
+        if (string.IsNullOrWhiteSpace(projectRootPath))
+            throw new ValidationException("Caminho do projeto não pode ser vazio.");
+
+        var requiredPaths = new[]
+        {
+            "Api\\Configuration\\DependencyInjectionConfig.cs",
+            "Api\\AutoMapper\\ConfigureMap.cs",
+            "Api\\Controllers",
+            "Domain\\Entities",
+            "Domain\\Mapping",
+            "Domain\\DTO\\Request",
+            "Domain\\DTO\\Response",
+            "Services"
+        };
+
+        foreach (var relativePath in requiredPaths)
+        {
+            var fullPath = Path.Combine(projectRootPath, relativePath);
+            EnsurePathExists(fullPath);
+        }
     }
 
     private async Task GenerateFileAsync(string fileType, string entityName, string projectApiPath, string targetDirectory, string tableName = null)
     {
-
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), TemplatesDirectory, fileType + "Template.tlp");
-
-        if (!File.Exists(templatePath))
-            throw new FileNotFoundException($"Template não encontrado: {templatePath}");
-
-        var templateContent = File.ReadAllText(templatePath);
-        var template = Template.Parse(templateContent);
+        string templateContent = await LoadTemplateContentAsync(fileType + "Template");
 
         var infoTable = tableName != null ? await _informationService.GetInfoByTableName(tableName) : null;
-
-        var output = template.Render(new { entityName, infoTable });
+        var output = RenderTemplate(templateContent, new { entityName, infoTable });
 
         string directoryPath = Path.Combine(projectApiPath, targetDirectory);
         if (!Directory.Exists(directoryPath))
@@ -64,100 +86,95 @@ public class GenerateService : IGenerateService
         };
 
         string outputPath = Path.Combine(directoryPath, fileName);
-
         await File.WriteAllTextAsync(outputPath, output);
     }
 
     private async Task ModifyFileWithTemplateAsync(string filePath,
-                                                    object templateModel,
-                                                    string insertAfter = null,
-                                                    string insertBefore = null,
-                                                    string insertAfterRegex = null,
-                                                    string insertBeforeRegex = null,
-                                                    string templateText = null,
-                                                    string templateFileName = null,
-                                                    bool avoidDuplicates = true)
+                                                   object templateModel,
+                                                   string insertAfter = null,
+                                                   string insertBefore = null,
+                                                   string insertAfterRegex = null,
+                                                   string insertBeforeRegex = null,
+                                                   string templateText = null,
+                                                   string templateFileName = null,
+                                                   bool avoidDuplicates = true)
     {
         if (!File.Exists(filePath))
-            throw new FileNotFoundException($"Arquivo não encontrado: {filePath}");
+            throw new ValidationException($"Arquivo não encontrado: {filePath}");
 
         string fileContent = await File.ReadAllTextAsync(filePath);
 
-        string templateContent;
+        string templateContent = !string.IsNullOrEmpty(templateText)
+            ? templateText
+            : await LoadTemplateContentAsync(templateFileName ?? throw new ValidationException("Você deve fornecer 'templateText' ou 'templateFileName'."));
 
-        if (!string.IsNullOrEmpty(templateText))
-        {
-            templateContent = templateText;
-        }
-        else if (!string.IsNullOrEmpty(templateFileName))
-        {
-            string templatePath = Path.Combine(Directory.GetCurrentDirectory(), TemplatesDirectory, templateFileName + ".tlp");
-
-            if (!File.Exists(templatePath))
-                throw new FileNotFoundException($"Template não encontrado: {templatePath}");
-
-            templateContent = await File.ReadAllTextAsync(templatePath);
-        }
-        else
-        {
-            throw new ArgumentException("Você deve fornecer 'templateText' ou 'templateFileName'.");
-        }
-
-        var template = Template.Parse(templateContent);
-        var renderedLine = template.Render(templateModel).Trim();
+        string renderedLine = RenderTemplate(templateContent, templateModel);
 
         if (avoidDuplicates && fileContent.Contains(renderedLine))
             return;
 
-        string updatedContent = fileContent;
+        string updatedContent = InsertRenderedLine(fileContent, renderedLine, insertAfter, insertBefore, insertAfterRegex, insertBeforeRegex);
+        await File.WriteAllTextAsync(filePath, updatedContent);
+    }
 
+    private async Task<string> LoadTemplateContentAsync(string templateName)
+    {
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), TemplatesDirectory, templateName + ".tlp");
+
+        if (!File.Exists(templatePath))
+            throw new ValidationException($"Template não encontrado: {templatePath}");
+
+        return await File.ReadAllTextAsync(templatePath);
+    }
+
+    private string RenderTemplate(string content, object model)
+    {
+        var template = Template.Parse(content);
+        return template.Render(model).Trim();
+    }
+
+    private string InsertRenderedLine(string content, string renderedLine, string insertAfter, string insertBefore, string insertAfterRegex, string insertBeforeRegex)
+    {
         if (!string.IsNullOrEmpty(insertAfterRegex))
         {
-            var match = Regex.Match(fileContent, insertAfterRegex);
+            var match = Regex.Match(content, insertAfterRegex);
             if (match.Success)
-            {
-                int insertPos = match.Index + match.Length;
-                updatedContent = fileContent.Insert(insertPos, "\n            " + renderedLine);
-            }
-            else
-            {
-                throw new InvalidOperationException($"Regex não encontrou ponto de inserção: {insertAfterRegex}");
-            }
-        }
-        else if (!string.IsNullOrEmpty(insertBeforeRegex))
-        {
-            var match = Regex.Match(fileContent, insertBeforeRegex);
-            if (match.Success)
-            {
-                updatedContent = fileContent.Insert(match.Index, "            " + renderedLine + "\n");
-            }
-            else
-            {
-                throw new InvalidOperationException($"Regex não encontrou ponto de inserção: {insertBeforeRegex}");
-            }
-        }
-        else if (!string.IsNullOrEmpty(insertAfter))
-        {
-            int index = fileContent.IndexOf(insertAfter);
-            if (index != -1)
-            {
-                int insertPos = index + insertAfter.Length;
-                updatedContent = fileContent.Insert(insertPos, "\n        " + renderedLine);
-            }
-        }
-        else if (!string.IsNullOrEmpty(insertBefore))
-        {
-            int index = fileContent.IndexOf(insertBefore);
-            if (index != -1)
-            {
-                updatedContent = fileContent.Insert(index, "            " + renderedLine + "\n");
-            }
-        }
-        else
-        {
-            throw new InvalidOperationException("É necessário definir um ponto de inserção.");
+                return content.Insert(match.Index + match.Length, "\n            " + renderedLine);
+            throw new ValidationException($"Regex não encontrou ponto de inserção: {insertAfterRegex}");
         }
 
-        await File.WriteAllTextAsync(filePath, updatedContent);
+        if (!string.IsNullOrEmpty(insertBeforeRegex))
+        {
+            var match = Regex.Match(content, insertBeforeRegex);
+            if (match.Success)
+                return content.Insert(match.Index, "            " + renderedLine + "\n");
+            throw new ValidationException($"Regex não encontrou ponto de inserção: {insertBeforeRegex}");
+        }
+
+        if (!string.IsNullOrEmpty(insertAfter))
+        {
+            int index = content.IndexOf(insertAfter);
+            if (index != -1)
+                return content.Insert(index + insertAfter.Length, "\n        " + renderedLine);
+        }
+
+        if (!string.IsNullOrEmpty(insertBefore))
+        {
+            int index = content.IndexOf(insertBefore);
+            if (index != -1)
+                return content.Insert(index, "            " + renderedLine + "\n");
+        }
+
+        throw new ValidationException("É necessário definir um ponto de inserção.");
+    }
+
+    private void EnsurePathExists(string fullPath)
+    {
+        if (File.Exists(fullPath) || Directory.Exists(fullPath)) return;
+
+        if (Path.HasExtension(fullPath))
+            throw new ValidationException($"Caminho inválido. Arquivo obrigatório não encontrado: {fullPath}");
+        else
+            throw new ValidationException($"Caminho inválido. Diretório obrigatório não encontrado: {fullPath}");
     }
 }

@@ -6,4 +6,5 @@ namespace Services;
 public interface IGenerateService
 {
     Task GenerateBackendCrudFiles(GenerateBackendFilter generateBackendFilter);
+    void ValidateProjectStructure(string projectRootPath);
 }
