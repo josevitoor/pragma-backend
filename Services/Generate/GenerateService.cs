@@ -30,16 +30,16 @@ public class GenerateService : IGenerateService
 
         await ModifyFileWithTemplateAsync(
             filePath: Path.Combine(generateBackendFilter.ProjectApiPath, "Api\\AutoMapper\\ConfigureMap.cs"),
-            templateModel: new { entityName = generateBackendFilter.EntityName },
+            entityName: generateBackendFilter.EntityName,
             insertAfterRegex: @"var\s+mapperConfig\s*=\s*new\s+MapperConfiguration\s*\(\s*cfg\s*=>\s*\{",
-            templateText: "cfg.AddProfile<{{ entityName }}Map>();"
+            templateText: "cfg.AddProfile<{{ entity_name }}Map>();"
         );
 
         await ModifyFileWithTemplateAsync(
             filePath: Path.Combine(generateBackendFilter.ProjectApiPath, "Api\\Configuration\\DependencyInjectionConfig.cs"),
-            templateModel: new { entityName = generateBackendFilter.EntityName },
+            entityName: generateBackendFilter.EntityName,
             insertAfter: "services.AddSingleton(configuration);",
-            templateText: "services.AddTransient<I{{ entityName }}Service, {{ entityName }}Service>();"
+            templateText: "services.AddTransient<I{{ entity_name }}Service, {{ entity_name }}Service>();"
         );
     }
 
@@ -91,13 +91,12 @@ public class GenerateService : IGenerateService
     }
 
     private async Task ModifyFileWithTemplateAsync(string filePath,
-                                                   object templateModel,
+                                                   string entityName,
                                                    string insertAfter = null,
                                                    string insertBefore = null,
                                                    string insertAfterRegex = null,
                                                    string insertBeforeRegex = null,
                                                    string templateText = null,
-                                                   string templateFileName = null,
                                                    bool avoidDuplicates = true)
     {
         if (!File.Exists(filePath))
@@ -105,11 +104,7 @@ public class GenerateService : IGenerateService
 
         string fileContent = await File.ReadAllTextAsync(filePath);
 
-        string templateContent = !string.IsNullOrEmpty(templateText)
-            ? templateText
-            : await LoadTemplateContentAsync(templateFileName ?? throw new ValidationException("Você deve fornecer 'templateText' ou 'templateFileName'."));
-
-        string renderedLine = RenderTemplate(templateContent, templateModel);
+        string renderedLine = RenderTemplate(templateText, new { entityName });
 
         if (avoidDuplicates && fileContent.Contains(renderedLine))
             return;
