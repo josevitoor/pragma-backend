@@ -8,6 +8,7 @@ using TCE.Base.UnitOfWork;
 using FluentValidation;
 
 namespace Services;
+
 public class InformationService : BaseService<Information>, IInformationService
 {
     public InformationService(IUnitOfWork uow) : base(uow)
@@ -18,28 +19,21 @@ public class InformationService : BaseService<Information>, IInformationService
     {
         return await GetAllAsync(x => x.TableName == tableName);
     }
-
-    public async Task<IEnumerable<string>> GetAllTableSelect()
-    {
-        return (await GetAllAsync(
-            selector: query => query.Select(x => x.TableName)
-        ))
-        .Distinct()
-        .ToList();
-    }
-
-    public async Task BdConnection(ConnectionFilter filter)
+    public async Task<IEnumerable<Information>> BdConnection(ConnectionFilter filter)
     {
         var connectionString = $"Data Source={filter.Host},{filter.Port};uid={filter.User};password={filter.Password};Initial Catalog={filter.Database};";
 
         var optionsBuilder = new DbContextOptionsBuilder<DynamicDbContext>();
         optionsBuilder.UseSqlServer(connectionString);
 
-        using var dbContext = new DynamicDbContext(optionsBuilder.Options);
+        var dbContext = new DynamicDbContext(optionsBuilder.Options);
+
 
         var canConnect = await dbContext.Database.CanConnectAsync();
 
         if (!canConnect)
             throw new ValidationException("Não foi possível conectar ao banco de dados com os dados fornecidos.");
+
+        return await dbContext.Informations.ToListAsync();
     }
 }

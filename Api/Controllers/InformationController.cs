@@ -21,7 +21,6 @@ namespace Application.Controllers;
 public class InformationController : ControllerBase
 {
     private readonly IInformationService _informationService;
-    private readonly IMapper _mapper;
 
     /// <summary>
     /// Construtor do controller de Information
@@ -29,59 +28,6 @@ public class InformationController : ControllerBase
     public InformationController(IInformationService informationService, IMapper mapper)
     {
         _informationService = informationService;
-        _mapper = mapper;
-    }
-
-    /// <summary>
-    /// Retorna as informações das colunas de todas tabelas do banco de dados.
-    /// </summary>
-    /// <response code="200">Sucesso</response>
-    /// <response code="401">Não autorizado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<Information>), 200)]
-    public async Task<IActionResult> GetAllAsync()
-    {
-        IEnumerable<Information> informations = await _informationService.GetAllAsync();
-
-        return Ok(informations);
-    }
-
-    /// <summary>
-    /// Retorna as informações das colunas de uma tabela do banco de dados pelo seu nome.
-    /// </summary>
-    /// <param name="tableName"></param>
-    /// <response code="200">Sucesso</response>
-    /// <response code="401">Não autorizado</response>
-    /// <response code="404">Não encontrado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    [HttpGet("{tableName}")]
-    [ProducesResponseType(typeof(IEnumerable<InformationByTableName>), 200)]
-    public async Task<IActionResult> GetInfoByTableName([FromRoute] string tableName)
-    {
-        IEnumerable<Information> informations = await _informationService.GetInfoByTableName(tableName);
-
-        if (informations == null || !informations.Any())
-            return NotFound();
-
-        IEnumerable<InformationByTableName> informationsMapped = _mapper.Map<IEnumerable<InformationByTableName>>(informations);
-
-        return Ok(informationsMapped);
-    }
-
-    /// <summary>
-    /// Retorna todos os nomes de tabela para select
-    /// </summary>
-    /// <response code="200">Sucesso</response>
-    /// <response code="401">Não autorizado</response>
-    /// <response code="500">Erro interno do servidor</response>
-    [HttpGet("table-name")]
-    [ProducesResponseType(typeof(IEnumerable<string>), 200)]
-    public async Task<IActionResult> GetAllTableSelect()
-    {
-        IEnumerable<string> informations = await _informationService.GetAllTableSelect();
-
-        return Ok(informations);
     }
 
     /// <summary>
@@ -92,10 +38,11 @@ public class InformationController : ControllerBase
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpPost("bd-connection")]
+    [ProducesResponseType(typeof(IEnumerable<Information>), 200)]
     public async Task<IActionResult> BdConnection([FromBody] ConnectionFilter filter)
     {
-        await _informationService.BdConnection(filter);
+        IEnumerable<Information> informations = await _informationService.BdConnection(filter);
 
-        return Ok();
+        return Ok(informations);
     }
 }

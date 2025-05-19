@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using FluentValidation;
 
 namespace Services;
+
 public class GenerateService : IGenerateService
 {
     private const string TemplatesDirectory = "Templates\\Automation";
@@ -29,14 +30,14 @@ public class GenerateService : IGenerateService
 
         await ModifyFileWithTemplateAsync(
             filePath: Path.Combine(generateBackendFilter.ProjectApiPath, "Api\\AutoMapper\\ConfigureMap.cs"),
-            templateModel: new { generateBackendFilter.EntityName },
+            templateModel: new { entityName = generateBackendFilter.EntityName },
             insertAfterRegex: @"var\s+mapperConfig\s*=\s*new\s+MapperConfiguration\s*\(\s*cfg\s*=>\s*\{",
             templateText: "cfg.AddProfile<{{ entityName }}Map>();"
         );
 
         await ModifyFileWithTemplateAsync(
             filePath: Path.Combine(generateBackendFilter.ProjectApiPath, "Api\\Configuration\\DependencyInjectionConfig.cs"),
-            templateModel: new { generateBackendFilter.EntityName },
+            templateModel: new { entityName = generateBackendFilter.EntityName },
             insertAfter: "services.AddSingleton(configuration);",
             templateText: "services.AddTransient<I{{ entityName }}Service, {{ entityName }}Service>();"
         );
