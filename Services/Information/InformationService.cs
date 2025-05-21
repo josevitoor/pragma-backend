@@ -15,11 +15,23 @@ public class InformationService : BaseService<Information>, IInformationService
     {
     }
 
-    public async Task<IEnumerable<Information>> GetInfoByTableName(string tableName)
+    public async Task<IEnumerable<Information>> GetInformationsByTableName(ConnectionFilter filter, string tableName)
     {
-        return await GetAllAsync(x => x.TableName == tableName);
+        using var dbContext = await CreateDynamicDbContext(filter);
+
+        return await dbContext.Informations
+            .Where(i => i.TableName == tableName)
+            .ToListAsync();
     }
-    public async Task<IEnumerable<Information>> BdConnection(ConnectionFilter filter)
+
+    public async Task<IEnumerable<Information>> GetAllInformations(ConnectionFilter filter)
+    {
+        using var dbContext = await CreateDynamicDbContext(filter);
+
+        return await dbContext.Informations.ToListAsync();
+    }
+
+    private async Task<DynamicDbContext> CreateDynamicDbContext(ConnectionFilter filter)
     {
         var connectionString = $"Data Source={filter.Host},{filter.Port};uid={filter.User};password={filter.Password};Initial Catalog={filter.Database};";
 
@@ -28,12 +40,11 @@ public class InformationService : BaseService<Information>, IInformationService
 
         var dbContext = new DynamicDbContext(optionsBuilder.Options);
 
-
         var canConnect = await dbContext.Database.CanConnectAsync();
 
         if (!canConnect)
             throw new ValidationException("Não foi possível conectar ao banco de dados com os dados fornecidos.");
 
-        return await dbContext.Informations.ToListAsync();
+        return dbContext;
     }
 }

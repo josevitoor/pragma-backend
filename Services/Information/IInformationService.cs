@@ -7,6 +7,6 @@ namespace Services;
 
 public interface IInformationService : IService<Information>
 {
-    Task<IEnumerable<Information>> GetInfoByTableName(string tableName);
-    Task<IEnumerable<Information>> BdConnection(ConnectionFilter filter);
+    Task<IEnumerable<Information>> GetInformationsByTableName(ConnectionFilter filter, string tableName);
+    Task<IEnumerable<Information>> GetAllInformations(ConnectionFilter filter);
 }

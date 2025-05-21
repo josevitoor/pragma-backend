@@ -29,29 +29,30 @@ public class GenerateController : ControllerBase
     /// <summary>
     /// Gerar código baseado em template
     /// </summary>
-    /// <param name="generateBackendFilter"></param>
+    /// <param name="generateFilter"></param>
     /// <response code="200">Sucesso</response>
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
-    [HttpPost("backend-files")]
+    [HttpPost("generate-files")]
     [ProducesResponseType(200)]
-    public async Task<IActionResult> GenerateBackendCrudFiles([FromBody] GenerateBackendFilter generateBackendFilter)
+    public async Task<IActionResult> GenerateCrudFiles([FromBody] GenerateFilter generateFilter)
     {
-        await _generateService.GenerateBackendCrudFiles(generateBackendFilter);
+        await _generateService.GenerateCrudFiles(generateFilter);
         return Ok();
     }
 
     /// <summary>
     /// Validar caminho para geração dos arquivos
     /// </summary>
-    /// <param name="projectRootPath"></param>
+    /// <param name="projectApiRootPath"></param>
+    /// <param name="projectClientRootPath"></param>
     /// <response code="200">Sucesso</response>
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("validate-structure")]
-    public IActionResult ValidateStructure([FromQuery] string projectRootPath)
+    public IActionResult ValidateStructure([FromQuery] string projectApiRootPath, [FromQuery] string projectClientRootPath)
     {
-        _generateService.ValidateProjectStructure(projectRootPath);
+        _generateService.ValidateProjectStructure(projectApiRootPath, projectClientRootPath);
         return Ok();
     }
 }

@@ -5,6 +5,6 @@ namespace Services;
 
 public interface IGenerateService
 {
-    Task GenerateBackendCrudFiles(GenerateBackendFilter generateBackendFilter);
-    void ValidateProjectStructure(string projectRootPath);
+    Task GenerateCrudFiles(GenerateFilter generateFilter);
+    void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath);
 }

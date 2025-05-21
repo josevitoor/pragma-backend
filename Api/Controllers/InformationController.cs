@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Domain.DTO.Response;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Services;
@@ -31,17 +29,17 @@ public class InformationController : ControllerBase
     }
 
     /// <summary>
-    /// Realiza conexão no banco de dados com os parâmetros de conexão passados
+    /// Retorna as informações de todas tabelas com base na conexão de banco de dados passada
     /// </summary>
     /// <param name="filter"></param>
     /// <response code="200">Sucesso</response>
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
-    [HttpPost("bd-connection")]
+    [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<Information>), 200)]
-    public async Task<IActionResult> BdConnection([FromBody] ConnectionFilter filter)
+    public async Task<IActionResult> GetAll([FromQuery] ConnectionFilter filter)
     {
-        IEnumerable<Information> informations = await _informationService.BdConnection(filter);
+        IEnumerable<Information> informations = await _informationService.GetAllInformations(filter);
 
         return Ok(informations);
     }
