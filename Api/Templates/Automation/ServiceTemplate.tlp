@@ -3,6 +3,8 @@ using TCE.Base.Services;
 using TCE.Base.UnitOfWork;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+{{ if is_server_side }}using TCE.Base.Repository._BaseRepository.Paging;{{ end }}
+{{ if table_columntable_columns_filter_lists_filter && table_columns_filter_list.size > 0 }}using Domain.Filter;{{ end }}
 
 namespace Services;
 public class {{ entity_name }}Service : BaseService<{{ entity_name }}>, I{{ entity_name }}Service
@@ -11,11 +13,55 @@ public class {{ entity_name }}Service : BaseService<{{ entity_name }}>, I{{ enti
     {
     }
 
-    public async Task<IEnumerable<{{ entity_name }}>> GetAllAsync()
+    public async Task<{{ if is_server_side }}IPaginate<{{ entity_name }}>{{ else }}IEnumerable<{{ entity_name }}> {{ end }}> GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}{{ entity_name }}Filter filter{{ end }})
     {
-        IEnumerable<{{ entity_name }}> {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s = await base.GetAllAsync();
+        {{- if table_columns_filter_list && table_columns_filter_list.size > 0 }}
+        var predicate = PredicateBuilder.New<{{ entity_name }}>(true);
+        {{- for col in table_columns_filter_list }}
+        {{- if col.data_type == "string" -}}
+        if (!string.IsNullOrEmpty(filter.{{ col.column_name }}))
+            predicate = predicate.And(x => x.{{ col.column_name }} != null && x.{{ col.column_name }}.Contains(filter.{{ col.column_name }}));
+        {{- else if col.data_type == "int" || col.data_type == "int32" || col.data_type == "int64" || col.data_type == "decimal" || col.data_type == "double" || col.data_type == "float" -}}
+        if (filter.{{ col.column_name }} != null)
+            predicate = predicate.And(x => x.{{ col.column_name }} == filter.{{ col.column_name }});
+        {{- else if col.data_type == "datetime" || col.data_type == "smalldatetime" || col.data_type == "datetime2" || col.data_type == "datetimeoffset" || col.data_type == "date" -}}
+        if (filter.{{ col.column_name }} != null)
+            predicate = predicate.And(x => x.{{ col.column_name }}.Date == filter.{{ col.column_name }}.Value.Date);
+        {{- else -}}
+        if (filter.{{ col.column_name }} != null)
+            predicate = predicate.And(x => x.{{ col.column_name }} == filter.{{ col.column_name }});
+        {{- end -}}
+        {{- end -}}
 
-        return {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s;
+        {{- if is_server_side -}}
+        int start = filter.ServerSide ? filter.Start : 0;
+        int length = filter.ServerSide ? filter.Length : 1000;
+
+        return await base.GetPaginatedAsync(
+            offset: start,
+            size: length,
+            predicate: predicate,
+            orderBy: x => x.OrderByDescending(e => e.Id{{ entity_name }})
+        );
+        {{- else -}}
+        return await base.GetAllAsync(predicate: predicate);
+        {{- end -}}
+
+        {{- else -}}
+
+        {{- if is_server_side -}}
+        int start = filter.ServerSide ? filter.Start : 0;
+        int length = filter.ServerSide ? filter.Length : 1000;
+
+        return await base.GetPaginatedAsync(
+            offset: start,
+            size: length,
+            orderBy: x => x.OrderByDescending(e => e.Id{{ entity_name }})
+        );
+        {{- else -}}
+        return await base.GetAllAsync();
+        {{- end -}}
+        {{- end -}}
     }
 
     public async Task<{{ entity_name }}> GetByIdAsync(int id)

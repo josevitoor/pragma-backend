@@ -1,0 +1,16 @@
+{{- for filter in table_columns_filter_list -}}
+{{- if filter.data_type == "smalldatetime" || filter.data_type == "datetime2" || filter.data_type == "datetimeoffset" || filter.data_type == "date" || filter.data_type == "time" || filter.data_type == "datetime" -}}
+using System;
+{{ if is_server_side }}using TCE.Base.Repository._BaseRepository.Paging;{{ end }}
+{{- break -}}
+{{- end -}}
+{{ end }}
+namespace Domain.Entities;
+
+public class {{ entity_name }}Filter{{ if is_server_side }} : PaginateFilter{{ end }}
+{ 
+{{- for filter in table_columns_filter_list }}
+    public {{ 
+        filter.data_type | string.replace "tinyint" "byte" | string.replace "smallint" "short" | string.replace "bigint" "long" | string.replace "int" "int"  | string.replace "bit" "bool" | string.replace "decimal" "decimal" | string.replace "numeric" "decimal" | string.replace "smallmoney" "decimal" | string.replace "money" "decimal" | string.replace "float" "double" | string.replace "real" "float" | string.replace "datetimeoffset" "DateTimeOffset" | string.replace "smalldatetime" "DateTime" | string.replace "datetime2" "DateTime" | string.replace "datetime" "DateTime" | string.replace "date" "DateTime" | string.replace "time" "TimeSpan" | string.replace "nvarchar" "string" | string.replace "varchar" "string" | string.replace "nchar" "string" | string.replace "char" "string" | string.replace "ntext" "string" | string.replace "text" "string" | string.replace "varbinary" "byte[]" | string.replace "binary" "byte[]" | string.replace "image" "byte[]" }}{{ if !(filter.data_type | string.contains "char" | string.contains "text" | string.contais "var") }}?{{ end }} {{ filter.column_name }} { get; set; }
+{{ end -}}
+}

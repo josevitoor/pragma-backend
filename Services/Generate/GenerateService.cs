@@ -4,6 +4,7 @@ using System.IO;
 using Domain.Filter;
 using System.Text.RegularExpressions;
 using FluentValidation;
+using System.Linq;
 
 namespace Services;
 
@@ -27,6 +28,8 @@ public class GenerateService : IGenerateService
         await GenerateFileAsync("Service", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath);
         await GenerateFileAsync("Validator", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath);
         await GenerateFileAsync("Mapper", generateFilter, $"Api\\AutoMapper", generateFilter.GenerateBackendFilter.ProjectApiPath);
+        if (generateFilter.TableColumnsFilter.Count() > 0)
+            await GenerateFileAsync("Filter", generateFilter, "Domain\\Filter", generateFilter.GenerateBackendFilter.ProjectApiPath);
 
         await ModifyFileWithTemplateAsync(
             filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Api\\AutoMapper\\ConfigureMap.cs"),
@@ -74,7 +77,10 @@ public class GenerateService : IGenerateService
         string templateContent = await LoadTemplateContentAsync(fileType + "Template");
 
         var infoTable = filter.TableName != null ? await _informationService.GetInformationsByTableName(filter.ConnectionFilter, filter.TableName) : null;
-        var output = RenderTemplate(templateContent, new { filter.EntityName, infoTable });
+
+        var tableColumnsFilterList = infoTable?.Where(info => filter.TableColumnsFilter != null && filter.TableColumnsFilter.Contains(info.ColumnName)).ToList();
+
+        var output = RenderTemplate(templateContent, new { filter.EntityName, filter.IsServerSide, tableColumnsFilterList, infoTable });
 
         string directoryPath = Path.Combine(projectPath, targetDirectory);
         if (!Directory.Exists(directoryPath))

@@ -5,8 +5,10 @@ using Services;
 using Domain.Entities;
 using Domain.DTO.Response;
 using Domain.DTO.Request;
+{{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}using Domain.Filter;{{ end }}
 using AutoMapper;
 using TceCore.ACL;
+{{ if is_server_side }}using TCE.Base.Repository._BaseRepository.Paging;{{ end }}
 
 namespace Application.Controllers;
 /// <summary>
@@ -38,11 +40,12 @@ public class {{ entity_name }}Controller : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<{{ entity_name }}Get>), 200)]
-    public async Task<IActionResult> GetAllAsync()
+    public async Task<IActionResult> GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}[FromQuery] {{ entity_name }}Filter filter{{ end }})
     {
-        IEnumerable<{{ entity_name }}> {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s = await _service.GetAllAsync();
+        IEnumerable<{{ entity_name }}> {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s = await _service.GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}filter{{ end }});
         IEnumerable<{{ entity_name }}Get> result = _mapper.Map<IEnumerable<{{ entity_name }}Get>>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s);
-        return Ok(result);
+        {{ if is_server_side }}return Pagination.Page(result);
+        {{ else }}return Ok(result);{{ end }}
     }
 
     /// <summary>
