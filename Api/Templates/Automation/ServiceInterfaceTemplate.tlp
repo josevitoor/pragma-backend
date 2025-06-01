@@ -1,8 +1,14 @@
 using Domain.Entities;
 using TCE.Base.Services;
 using System.Threading.Tasks;
-{{ if is_server_side }}using TCE.Base.Repository._BaseRepository.Paging;{{ else }}using System.Collections.Generic;{{ end }}
-{{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}using Domain.Filter;{{ end }}
+{{~ if is_server_side ~}}
+using TCE.Base.Repository._BaseRepository.Paging;
+{{~ else ~}}
+using System.Collections.Generic;
+{{~ end ~}}
+{{~ if table_columns_filter_list && table_columns_filter_list.size > 0 ~}}
+using Domain.Filter;
+{{~ end ~}}
 
 namespace Services;
 

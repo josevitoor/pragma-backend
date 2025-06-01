@@ -2,11 +2,18 @@ using Domain.Entities;
 using TCE.Base.Services;
 using TCE.Base.UnitOfWork;
 using System.Threading.Tasks;
-{{ if is_server_side }}using TCE.Base.Repository._BaseRepository.Paging;{{ else }}using System.Collections.Generic;{{ end }}
-{{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}using Domain.Filter;
-using LinqKit;{{ end }}
+{{~ if is_server_side ~}}
+using TCE.Base.Repository._BaseRepository.Paging;
+{{~ else ~}}
+using System.Collections.Generic;
+{{~ end ~}}
+{{~ if table_columns_filter_list && table_columns_filter_list.size > 0 ~}}
+using Domain.Filter;
+using LinqKit;
+{{~ end ~}}
 
 namespace Services;
+
 public class {{ entity_name }}Service : BaseService<{{ entity_name }}>, I{{ entity_name }}Service
 {
     public {{ entity_name }}Service(IUnitOfWork uow) : base(uow)
@@ -41,16 +48,16 @@ public class {{ entity_name }}Service : BaseService<{{ entity_name }}>, I{{ enti
             size: length,
             predicate: predicate
         );
-        {{- else -}}
+        {{- else }}
         return await base.GetAllAsync(predicate: predicate);
         {{- end -}}
         {{- else -}}
         {{- if is_server_side }}
-        int start = filter.ServerSide ? filter.Start : 0;
-        int length = filter.ServerSide ? filter.Length : 1000;
+        int start = 0;
+        int length = 1000;
 
         return await base.GetPaginatedAsync(offset: start, size: length);
-        {{- else -}}
+        {{- else }}
         return await base.GetAllAsync();
         {{- end -}}
         {{- end }}

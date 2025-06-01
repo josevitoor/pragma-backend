@@ -5,13 +5,18 @@ using Services;
 using Domain.Entities;
 using Domain.DTO.Response;
 using Domain.DTO.Request;
-{{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}using Domain.Filter;{{ end }}
 using AutoMapper;
 using TceCore.ACL;
-{{ if is_server_side }}using TCE.Base.Repository._BaseRepository.Paging;
-using Application.ApiPagination;{{ end }}
+{{~ if table_columns_filter_list && table_columns_filter_list.size > 0 ~}}
+using Domain.Filter;
+{{~ end ~}}
+{{~ if is_server_side ~}}
+using TCE.Base.Repository._BaseRepository.Paging;
+using Application.ApiPagination;
+{{~ end ~}}
 
 namespace Application.Controllers;
+
 /// <summary>
 /// Controller para gerenciamento de {{ entity_name }}
 /// </summary>
