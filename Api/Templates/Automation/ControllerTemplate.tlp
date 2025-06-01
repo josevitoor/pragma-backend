@@ -8,7 +8,8 @@ using Domain.DTO.Request;
 {{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}using Domain.Filter;{{ end }}
 using AutoMapper;
 using TceCore.ACL;
-{{ if is_server_side }}using TCE.Base.Repository._BaseRepository.Paging;{{ end }}
+{{ if is_server_side }}using TCE.Base.Repository._BaseRepository.Paging;
+using Application.ApiPagination;{{ end }}
 
 namespace Application.Controllers;
 /// <summary>
@@ -42,10 +43,9 @@ public class {{ entity_name }}Controller : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<{{ entity_name }}Get>), 200)]
     public async Task<IActionResult> GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}[FromQuery] {{ entity_name }}Filter filter{{ end }})
     {
-        IEnumerable<{{ entity_name }}> {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s = await _service.GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}filter{{ end }});
-        IEnumerable<{{ entity_name }}Get> result = _mapper.Map<IEnumerable<{{ entity_name }}Get>>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s);
-        {{ if is_server_side }}return Pagination.Page(result);
-        {{ else }}return Ok(result);{{ end }}
+        {{ if is_server_side }}IPaginate<{{ entity_name }}>{{ else }}IEnumerable<{{ entity_name }}>{{ end }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s = await _service.GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}filter{{ end }});
+        {{ if is_server_side }}IPaginate<{{ entity_name }}Get>{{ else }}IEnumerable<{{ entity_name }}Get>{{ end }} result = _mapper.Map<{{ if is_server_side }}IPaginate<{{ entity_name }}Get>{{ else }}IEnumerable<{{ entity_name }}Get>{{ end }}>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s);
+        {{ if is_server_side }}return Pagination.Page(result);{{ else }}return Ok(result);{{ end }}
     }
 
     /// <summary>

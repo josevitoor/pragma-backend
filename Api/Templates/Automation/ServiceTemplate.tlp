@@ -2,9 +2,9 @@ using Domain.Entities;
 using TCE.Base.Services;
 using TCE.Base.UnitOfWork;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-{{ if is_server_side }}using TCE.Base.Repository._BaseRepository.Paging;{{ end }}
-{{ if table_columntable_columns_filter_lists_filter && table_columns_filter_list.size > 0 }}using Domain.Filter;{{ end }}
+{{ if is_server_side }}using TCE.Base.Repository._BaseRepository.Paging;{{ else }}using System.Collections.Generic;{{ end }}
+{{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}using Domain.Filter;
+using LinqKit;{{ end }}
 
 namespace Services;
 public class {{ entity_name }}Service : BaseService<{{ entity_name }}>, I{{ entity_name }}Service
@@ -17,51 +17,43 @@ public class {{ entity_name }}Service : BaseService<{{ entity_name }}>, I{{ enti
     {
         {{- if table_columns_filter_list && table_columns_filter_list.size > 0 }}
         var predicate = PredicateBuilder.New<{{ entity_name }}>(true);
-        {{- for col in table_columns_filter_list }}
-        {{- if col.data_type == "string" -}}
+        {{ for col in table_columns_filter_list }}
+        {{~ if col.data_type == "nvarchar" || col.data_type == "varchar" || col.data_type == "nchar" || col.data_type == "char" || col.data_type == "ntext" || col.data_type == "text" ~}}
         if (!string.IsNullOrEmpty(filter.{{ col.column_name }}))
             predicate = predicate.And(x => x.{{ col.column_name }} != null && x.{{ col.column_name }}.Contains(filter.{{ col.column_name }}));
-        {{- else if col.data_type == "int" || col.data_type == "int32" || col.data_type == "int64" || col.data_type == "decimal" || col.data_type == "double" || col.data_type == "float" -}}
+        {{~ else if col.data_type == "int" || col.data_type == "int32" || col.data_type == "int64" || col.data_type == "decimal" || col.data_type == "double" || col.data_type == "float" ~}}
         if (filter.{{ col.column_name }} != null)
             predicate = predicate.And(x => x.{{ col.column_name }} == filter.{{ col.column_name }});
-        {{- else if col.data_type == "datetime" || col.data_type == "smalldatetime" || col.data_type == "datetime2" || col.data_type == "datetimeoffset" || col.data_type == "date" -}}
-        if (filter.{{ col.column_name }} != null)
-            predicate = predicate.And(x => x.{{ col.column_name }}.Date == filter.{{ col.column_name }}.Value.Date);
-        {{- else -}}
+        {{~ else if col.data_type == "datetime" || col.data_type == "smalldatetime" || col.data_type == "datetime2" || col.data_type == "datetimeoffset" || col.data_type == "date" ~}}
         if (filter.{{ col.column_name }} != null)
             predicate = predicate.And(x => x.{{ col.column_name }} == filter.{{ col.column_name }});
+        {{~ else ~}}
+        if (filter.{{ col.column_name }} != null)
+            predicate = predicate.And(x => x.{{ col.column_name }} == filter.{{ col.column_name }});
+        {{~ end ~}}
         {{- end -}}
-        {{- end -}}
-
-        {{- if is_server_side -}}
+        {{- if is_server_side }}
         int start = filter.ServerSide ? filter.Start : 0;
         int length = filter.ServerSide ? filter.Length : 1000;
 
         return await base.GetPaginatedAsync(
             offset: start,
             size: length,
-            predicate: predicate,
-            orderBy: x => x.OrderByDescending(e => e.Id{{ entity_name }})
+            predicate: predicate
         );
         {{- else -}}
         return await base.GetAllAsync(predicate: predicate);
         {{- end -}}
-
         {{- else -}}
-
-        {{- if is_server_side -}}
+        {{- if is_server_side }}
         int start = filter.ServerSide ? filter.Start : 0;
         int length = filter.ServerSide ? filter.Length : 1000;
 
-        return await base.GetPaginatedAsync(
-            offset: start,
-            size: length,
-            orderBy: x => x.OrderByDescending(e => e.Id{{ entity_name }})
-        );
+        return await base.GetPaginatedAsync(offset: start, size: length);
         {{- else -}}
         return await base.GetAllAsync();
         {{- end -}}
-        {{- end -}}
+        {{- end }}
     }
 
     public async Task<{{ entity_name }}> GetByIdAsync(int id)
