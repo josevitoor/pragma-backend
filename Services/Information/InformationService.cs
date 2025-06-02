@@ -7,6 +7,7 @@ using TCE.Base.Services;
 using TCE.Base.UnitOfWork;
 using FluentValidation;
 using Domain;
+using Domain.Filter;
 
 namespace Services;
 

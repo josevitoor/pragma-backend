@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Filter;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 using TceCore.ACL;

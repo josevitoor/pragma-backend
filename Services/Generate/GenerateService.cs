@@ -5,12 +5,15 @@ using Domain.Filter;
 using System.Text.RegularExpressions;
 using FluentValidation;
 using System.Linq;
+using Domain.Enum;
+using CrossCutting.Util;
 
 namespace Services;
 
 public class GenerateService : IGenerateService
 {
-    private const string TemplatesDirectory = "Templates\\Automation";
+    private const string ApiTemplatesDirectory = "Templates\\Automation\\BackendTemplates";
+    private const string ClientTemplatesDirectory = "Templates\\Automation\\FrontendTemplates";
     private readonly IInformationService _informationService;
     public GenerateService(IInformationService informationService)
     {
@@ -19,17 +22,19 @@ public class GenerateService : IGenerateService
 
     public async Task GenerateCrudFiles(GenerateFilter generateFilter)
     {
-        await GenerateFileAsync("Controller", generateFilter, "Api\\Controllers", generateFilter.GenerateBackendFilter.ProjectApiPath);
-        await GenerateFileAsync("Entity", generateFilter, "Domain\\Entities", generateFilter.GenerateBackendFilter.ProjectApiPath);
-        await GenerateFileAsync("EntityConfiguration", generateFilter, "Domain\\Mapping", generateFilter.GenerateBackendFilter.ProjectApiPath);
-        await GenerateFileAsync("PostDTO", generateFilter, "Domain\\DTO\\Request", generateFilter.GenerateBackendFilter.ProjectApiPath);
-        await GenerateFileAsync("GetDTO", generateFilter, "Domain\\DTO\\Response", generateFilter.GenerateBackendFilter.ProjectApiPath);
-        await GenerateFileAsync("ServiceInterface", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath);
-        await GenerateFileAsync("Service", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath);
-        await GenerateFileAsync("Validator", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath);
-        await GenerateFileAsync("Mapper", generateFilter, $"Api\\AutoMapper", generateFilter.GenerateBackendFilter.ProjectApiPath);
+        // Geração de arquivos backend
+        await GenerateFileAsync("Controller", generateFilter, "Api\\Controllers", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+        await GenerateFileAsync("Entity", generateFilter, "Domain\\Entities", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+        await GenerateFileAsync("EntityConfiguration", generateFilter, "Domain\\Mapping", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+        await GenerateFileAsync("PostDTO", generateFilter, "Domain\\DTO\\Request", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+        await GenerateFileAsync("GetDTO", generateFilter, "Domain\\DTO\\Response", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+        await GenerateFileAsync("ServiceInterface", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+        await GenerateFileAsync("Service", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+        await GenerateFileAsync("Validator", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+        await GenerateFileAsync("Mapper", generateFilter, $"Api\\AutoMapper", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+
         if (generateFilter.TableColumnsFilter.Count() > 0)
-            await GenerateFileAsync("Filter", generateFilter, "Domain\\Filter", generateFilter.GenerateBackendFilter.ProjectApiPath);
+            await GenerateFileAsync("Filter", generateFilter, "Domain\\Filter", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
 
         await ModifyFileWithTemplateAsync(
             filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Api\\AutoMapper\\ConfigureMap.cs"),
@@ -44,6 +49,9 @@ public class GenerateService : IGenerateService
             insertAfter: "services.AddSingleton(configuration);",
             templateText: "services.AddTransient<I{{ entity_name }}Service, {{ entity_name }}Service>();"
         );
+
+        // Geração de arquivos frontend
+        await GenerateFileAsync("Service", generateFilter, "src\\app\\services", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
     }
 
     public void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath)
@@ -65,16 +73,31 @@ public class GenerateService : IGenerateService
             "Services"
         };
 
+        var requiredClientPaths = new[]
+        {
+            "src\\app\\app.module.ts",
+            "src\\app\\app.routes.module.ts",
+            "src\\app\\services",
+            "src\\app\\models",
+            "src\\app\\modulos",
+        };
+
+
         foreach (var relativePath in requiredApiPaths)
         {
             var fullPath = Path.Combine(projectApiRootPath, relativePath);
             EnsurePathExists(fullPath);
         }
+        foreach (var relativePath in requiredClientPaths)
+        {
+            var fullPath = Path.Combine(projectClientRootPath, relativePath);
+            EnsurePathExists(fullPath);
+        }
     }
 
-    private async Task GenerateFileAsync(string fileType, GenerateFilter filter, string targetDirectory, string projectPath)
+    private async Task GenerateFileAsync(string fileType, GenerateFilter filter, string targetDirectory, string projectPath, TemplateType templateType)
     {
-        string templateContent = await LoadTemplateContentAsync(fileType + "Template");
+        string templateContent = await LoadTemplateContentAsync(fileType + "Template", templateType);
 
         var infoTable = filter.TableName != null ? await _informationService.GetInformationsByTableName(filter.ConnectionFilter, filter.TableName) : null;
 
@@ -86,15 +109,9 @@ public class GenerateService : IGenerateService
         if (!Directory.Exists(directoryPath))
             Directory.CreateDirectory(directoryPath);
 
-        string fileName = fileType switch
-        {
-            "ServiceInterface" => "I" + filter.EntityName + "Service.cs",
-            "Entity" => filter.EntityName + ".cs",
-            "Mapper" => filter.EntityName + "Map.cs",
-            _ => filter.EntityName + fileType + ".cs"
-        };
-
+        string fileName = GetFileName(fileType, filter.EntityName, templateType);
         string outputPath = Path.Combine(directoryPath, fileName);
+
         await File.WriteAllTextAsync(outputPath, output);
     }
 
@@ -121,9 +138,16 @@ public class GenerateService : IGenerateService
         await File.WriteAllTextAsync(filePath, updatedContent);
     }
 
-    private async Task<string> LoadTemplateContentAsync(string templateName)
+    private async Task<string> LoadTemplateContentAsync(string templateName, TemplateType templateType)
     {
-        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), TemplatesDirectory, templateName + ".tlp");
+        string baseTemplateDirectory = templateType switch
+        {
+            TemplateType.Api => ApiTemplatesDirectory,
+            TemplateType.Client => ClientTemplatesDirectory,
+            _ => throw new ValidationException("Tipo de template inválido")
+        };
+
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), baseTemplateDirectory, templateName + ".tlp");
 
         if (!File.Exists(templatePath))
             throw new ValidationException($"Template não encontrado: {templatePath}");
@@ -180,5 +204,26 @@ public class GenerateService : IGenerateService
             throw new ValidationException($"Caminho inválido. Arquivo obrigatório não encontrado: {fullPath}");
         else
             throw new ValidationException($"Caminho inválido. Diretório obrigatório não encontrado: {fullPath}");
+    }
+
+    private string GetFileName(string fileType, string entityName, TemplateType templateType)
+    {
+        return templateType switch
+        {
+            TemplateType.Api => fileType switch
+            {
+                "ServiceInterface" => $"I{entityName}Service.cs",
+                "Entity" => $"{entityName}.cs",
+                "Mapper" => $"{entityName}Map.cs",
+                _ => $"{entityName}{fileType}.cs"
+            },
+            TemplateType.Client => fileType switch
+            {
+                "Service" => $"{entityName.ToLowerFirst()}.service.ts",
+                "Model" => $"{entityName}.ts",
+                _ => $"{entityName.ToLowerFirst()}.{fileType.ToLower()}.ts"
+            },
+            _ => throw new ValidationException("Tipo de template não suportado.")
+        };
     }
 }

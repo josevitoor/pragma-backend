@@ -1,0 +1,12 @@
+import { Injectable, Injector } from '@angular/core';
+import { {{ entity_name }}Type } from '../models/{{ entity_name }}';
+import { BaseService, ConfigService } from 'tce-ng-lib';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class {{ entity_name }}Service extends BaseService<{{ entity_name }}Type> {
+  constructor(injector: Injector) {
+    super(injector, `${ConfigService.getEnv().apiSistema}/{{ entity_name }}`);
+  }
+}

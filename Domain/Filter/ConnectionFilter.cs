@@ -1,3 +1,5 @@
+namespace Domain.Filter;
+
 public class ConnectionFilter
 {
     public string Database { get; set; }

@@ -34,5 +34,13 @@ namespace CrossCutting.Util
 
             return string.Join(' ', formatedNames);
         }
+
+        public static string ToLowerFirst(this string value)
+        {
+            if (string.IsNullOrEmpty(value) || char.IsLower(value[0]))
+                return value;
+
+            return char.ToLowerInvariant(value[0]) + value.Substring(1);
+        }
     }
 }
