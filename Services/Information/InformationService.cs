@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using TCE.Base.Services;
 using TCE.Base.UnitOfWork;
 using FluentValidation;
+using Domain;
 
 namespace Services;
 
@@ -21,6 +22,8 @@ public class InformationService : BaseService<Information>, IInformationService
 
         return await dbContext.Informations
             .Where(i => i.TableName == tableName)
+            .Include(i => i.TableConstraint)
+                .ThenInclude(tc => tc.ConstraintInfo)
             .ToListAsync();
     }
 
@@ -28,10 +31,13 @@ public class InformationService : BaseService<Information>, IInformationService
     {
         using var dbContext = await CreateDynamicDbContext(filter);
 
-        return await dbContext.Informations.ToListAsync();
+        return await dbContext.Informations
+            .Include(i => i.TableConstraint)
+                .ThenInclude(tc => tc.ConstraintInfo)
+            .ToListAsync();
     }
 
-    private async Task<DynamicDbContext> CreateDynamicDbContext(ConnectionFilter filter)
+    private async static Task<DynamicDbContext> CreateDynamicDbContext(ConnectionFilter filter)
     {
         var connectionString = $"Data Source={filter.Host},{filter.Port};uid={filter.User};password={filter.Password};Initial Catalog={filter.Database};";
 

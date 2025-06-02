@@ -8,7 +8,8 @@ public class InformationEntityConfiguration : IEntityTypeConfiguration<Informati
     public void Configure(EntityTypeBuilder<Information> builder)
     {
         builder.ToTable("COLUMNS", "INFORMATION_SCHEMA");
-        builder.HasNoKey();
+
+        builder.HasKey(i => new { i.TableName, i.ColumnName });
 
         builder.Property(i => i.TableName)
             .HasColumnName("TABLE_NAME")

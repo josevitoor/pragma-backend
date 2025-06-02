@@ -1,4 +1,5 @@
 namespace Domain.Entities;
+
 public class Information
 {
     public string TableName { get; set; }
@@ -6,4 +7,5 @@ public class Information
     public string DataType { get; set; }
     public string IsNullable { get; set; }
     public int? MaxLength { get; set; }
+    public TableConstraint TableConstraint { get; set; }
 }

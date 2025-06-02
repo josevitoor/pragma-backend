@@ -2,6 +2,7 @@ using Domain.Entities;
 using Infra.Mapping;
 using Microsoft.EntityFrameworkCore;
 
+namespace Domain;
 public class DynamicDbContext : DbContext
 {
     public DynamicDbContext(DbContextOptions<DynamicDbContext> options) : base(options) { }
@@ -11,5 +12,7 @@ public class DynamicDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new InformationEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new TableConstraintEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ConstraintInfoEntityConfiguration());
     }
 }

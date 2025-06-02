@@ -10,5 +10,7 @@ public class AutomationContext : AuditDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new InformationEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new TableConstraintEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ConstraintInfoEntityConfiguration());
     }
 }
