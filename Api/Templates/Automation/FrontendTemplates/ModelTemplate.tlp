@@ -1,0 +1,7 @@
+export interface {{ entity_name }}Type {
+{{- for column in info_table }}
+  {{ column.column_name | string.downcase }}: {{
+    column.data_type | string.replace "tinyint" "number" | string.replace "smallint" "number" | string.replace "bigint" "number" | string.replace "int" "number" | string.replace "bit" "boolean" | string.replace "decimal" "number" | string.replace "numeric" "number" | string.replace "smallmoney" "number" | string.replace "money" "number" | string.replace "float" "number" | string.replace "real" "number" | string.replace "datetimeoffset" "Date" | string.replace "smalldatetime" "Date" | string.replace "datetime2" "Date" | string.replace "datetime" "Date" | string.replace "date" "Date" | string.replace "time" "Date" | string.replace "nvarchar" "string" | string.replace "varchar" "string" | string.replace "nchar" "string" | string.replace "char" "string" | string.replace "ntext" "string" | string.replace "text" "string" | string.replace "varbinary" "string" | string.replace "binary" "string" | string.replace "image" "string"
+  }};
+{{- end }}
+}

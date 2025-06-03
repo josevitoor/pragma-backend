@@ -39,7 +39,7 @@ public class GenerateService : IGenerateService
         await ModifyFileWithTemplateAsync(
             filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Api\\AutoMapper\\ConfigureMap.cs"),
             entityName: generateFilter.EntityName,
-            insertAfterRegex: @"var\s+mapperConfig\s*=\s*new\s+MapperConfiguration\s*\(\s*cfg\s*=>\s*\{",
+            insertAfterRegex: @"cfg\s*=>\s*\{",
             templateText: "cfg.AddProfile<{{ entity_name }}Map>();"
         );
 
@@ -52,6 +52,9 @@ public class GenerateService : IGenerateService
 
         // Geração de arquivos frontend
         await GenerateFileAsync("Service", generateFilter, "src\\app\\services", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+        await GenerateFileAsync("Model", generateFilter, "src\\app\\models", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+        await GenerateFileAsync("Module", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+        await GenerateFileAsync("Routing", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
     }
 
     public void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath)
@@ -76,22 +79,21 @@ public class GenerateService : IGenerateService
         var requiredClientPaths = new[]
         {
             "src\\app\\app.module.ts",
-            "src\\app\\app.routes.module.ts",
             "src\\app\\services",
             "src\\app\\models",
             "src\\app\\modulos",
         };
 
-
         foreach (var relativePath in requiredApiPaths)
         {
             var fullPath = Path.Combine(projectApiRootPath, relativePath);
-            EnsurePathExists(fullPath);
+            EnsurePathExists(fullPath, TemplateType.Api);
         }
+
         foreach (var relativePath in requiredClientPaths)
         {
             var fullPath = Path.Combine(projectClientRootPath, relativePath);
-            EnsurePathExists(fullPath);
+            EnsurePathExists(fullPath, TemplateType.Client);
         }
     }
 
@@ -196,14 +198,23 @@ public class GenerateService : IGenerateService
         throw new ValidationException("É necessário definir um ponto de inserção.");
     }
 
-    private void EnsurePathExists(string fullPath)
+    private void EnsurePathExists(string fullPath, TemplateType templateType)
     {
-        if (File.Exists(fullPath) || Directory.Exists(fullPath)) return;
+        if (File.Exists(fullPath) || Directory.Exists(fullPath))
+            return;
 
-        if (Path.HasExtension(fullPath))
-            throw new ValidationException($"Caminho inválido. Arquivo obrigatório não encontrado: {fullPath}");
-        else
-            throw new ValidationException($"Caminho inválido. Diretório obrigatório não encontrado: {fullPath}");
+        string tipoProjeto = templateType switch
+        {
+            TemplateType.Api => "API",
+            TemplateType.Client => "Client",
+            _ => "Desconhecido"
+        };
+
+        string tipoAlvo = Path.HasExtension(fullPath) ? "Arquivo" : "Diretório";
+
+        throw new ValidationException(
+            $"Estrutura inválida no caminho de destino {tipoProjeto}. {tipoAlvo.Capitalize()} obrigatório não encontrado: {fullPath}"
+        );
     }
 
     private string GetFileName(string fileType, string entityName, TemplateType templateType)
@@ -221,7 +232,8 @@ public class GenerateService : IGenerateService
             {
                 "Service" => $"{entityName.ToLowerFirst()}.service.ts",
                 "Model" => $"{entityName}.ts",
-                _ => $"{entityName.ToLowerFirst()}.{fileType.ToLower()}.ts"
+                "Routing" => $"{entityName.ToLowerFirst()}-routing.module.ts",
+                _ => $"{entityName.ToLowerFirst()}-{fileType.ToLower()}.ts"
             },
             _ => throw new ValidationException("Tipo de template não suportado.")
         };

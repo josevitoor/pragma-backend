@@ -1,0 +1,34 @@
+import { NgModule } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
+import { {{ entity_name }}ListComponent } from './{{ entity_name | string.downcase }}/{{ entity_name | string.downcase }}-list/{{ entity_name | string.downcase }}-list.component';
+import { {{ entity_name }}FormComponent } from './{{ entity_name | string.downcase }}/{{ entity_name | string.downcase }}-form/{{ entity_name | string.downcase }}-form.component';
+
+const routes: Routes = [
+  {
+    path: '{{ entity_name | string.downcase }}',
+    data: { breadcrumb: 'Gerenciar {{ entity_name }}' },
+    children: [
+      {
+        path: '',
+        component: {{ entity_name }}ListComponent,
+        data: { breadcrumb: '' },
+      },
+      {
+        path: 'new',
+        component: {{ entity_name }}FormComponent,
+        data: { breadcrumb: 'Cadastrar {{ entity_name }}' },
+      },
+      {
+        path: ':id/edit',
+        component: {{ entity_name }}FormComponent,
+        data: { breadcrumb: 'Editar {{ entity_name }}' },
+      },
+    ],
+  },
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
+})
+export class {{ entity_name }}RoutingModule {}
