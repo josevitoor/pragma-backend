@@ -48,5 +48,33 @@ namespace CrossCutting.Util
             if (string.IsNullOrWhiteSpace(value)) return value;
             return char.ToUpperInvariant(value[0]) + value.Substring(1);
         }
+
+        public static string ToKebabCase(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+                return str;
+
+            var kebabCase = System.Text.RegularExpressions.Regex.Replace(
+                str,
+                "(?<!^)([A-Z])",
+                "-$1"
+            );
+
+            return kebabCase.ToLowerInvariant();
+        }
+
+        public static string ToLabel(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+                return str;
+
+            var result = System.Text.RegularExpressions.Regex.Replace(
+                str,
+                "([A-Z])",
+                " $1"
+            ).Trim();
+
+            return char.ToUpper(result[0]) + result.Substring(1);
+        }
     }
 }

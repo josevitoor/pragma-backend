@@ -1,0 +1,90 @@
+<tce-container>
+  <tce-container-header title="{{ entity_label }}"></tce-container-header>
+
+  <tce-filter class="my-4" (find)="onFilter()" (clear)="clearFilters()">
+    <form [formGroup]="resourceFilterForm">
+      <div class="form-row">
+        {{~ for filter in table_columns_filter_list ~}}
+        <div class="col-3">
+          <tce-input-field
+            label="{{ filter.label }}"
+            formControlName="{{ filter.column_name | string.slice(0, 1) | string.downcase }}{{ filter.column_name | string.slice(1) }}"
+            type="text"
+            [control]="resourceFilterForm.get('{{ filter.column_name | string.slice(0, 1) | string.downcase }}{{ filter.column_name | string.slice(1) }}')"
+          ></tce-input-field>
+        </div>
+        {{~ end ~}}
+      </div>
+    </form>
+  </tce-filter>
+
+  <main>
+    <tce-table
+      [id]="'tabela-{{ entity_name }}'"
+      (pageSizeChange)="pageSize = $event"
+      (searchTermChange)="searchTerm = $event"
+      (pageChange)="page = $event"
+    >
+      <div legend>
+        <fa-icon icon="edit" class="ml-3"></fa-icon> Editar
+        <fa-icon icon="trash" class="ml-3 mr-1"></fa-icon> Excluir
+      </div>
+      <table
+        aria-describedby="Tabela para a listagem de {{ entity_label }}"
+        content
+        class="table table-striped text-center"
+      >
+        <thead>
+          <tr>
+            <th></th>
+            {{~ for column in table_columns_list ~}}
+            <th{{ if !is_server_side }} tceSortable="{{ column.database_column | string.slice(0, 1) | string.downcase }}{{ column.database_column | string.slice(1) }}" (sort)="onSort($event)" {{ end }}>
+              {{ column.display_name }}
+            </th>
+            {{~ end ~}}
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let item of resources$
+                | async
+                | paginate
+                  : {
+                      id: 'tabela-{{ entity_name }}',
+                      itemsPerPage: pageSize,
+                      currentPage: page,
+                      totalItems: total$ | async
+                    }
+            "
+          >
+            <td></td>
+            {{~ for column in table_columns_list ~}}
+            <td>
+                {{ "{{ item." }}{{ column.database_column | string.slice(0, 1) | string.downcase }}{{ column.database_column | string.slice(1) }}{{ " }}" }}
+            </td>
+            {{~ end ~}}
+            <td>
+              <fa-icon
+                icon="edit"
+                tooltip="Editar"
+                [routerLink]="[item.id, 'edit']"
+              ></fa-icon>
+              <fa-icon
+                icon="trash"
+                tooltip="Excluir"
+                (click)="deleteResource(item.id)"
+              ></fa-icon>
+            </td>
+          </tr>
+          <tr *ngIf="(resources$ | async)?.length == 0">
+            <td colspan="{{ table_columns_list.size + 1 }}">
+              Nenhum {{ entity_label }} encontrado.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </tce-table>
+  </main>
+</tce-container>

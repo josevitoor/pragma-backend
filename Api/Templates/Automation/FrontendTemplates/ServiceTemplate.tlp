@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
-import { {{ entity_name }}Type } from '../models/{{ entity_name }}';
+import { {{ entity_name }}Type } from '../models/{{ entity_name }}Type';
 import { BaseService, ConfigService } from 'tce-ng-lib';
 
 @Injectable({

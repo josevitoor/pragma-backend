@@ -55,6 +55,15 @@ public class GenerateService : IGenerateService
         await GenerateFileAsync("Model", generateFilter, "src\\app\\models", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
         await GenerateFileAsync("Module", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
         await GenerateFileAsync("Routing", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+        await GenerateFileAsync("ListHtml", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-list", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+        await GenerateFileAsync("ListTs", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-list", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+
+        await ModifyFileWithTemplateAsync(
+            filePath: Path.Combine(generateFilter.GenerateFrontendFilter.ProjectClientPath, "src\\app\\app.routes.module.ts"),
+            entityName: generateFilter.EntityName,
+            insertAfter: "{ path: '404', component: PageNotFoundComponent },",
+            templateText: "{ path: '{{ kebab_case }}', loadChildren: () => import('./modulos/{{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}/{{ kebab_case }}.module').then((a) => a.{{ entity_name }}Module) },"
+        );
     }
 
     public void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath)
@@ -71,8 +80,6 @@ public class GenerateService : IGenerateService
             "Api\\Controllers",
             "Domain\\Entities",
             "Domain\\Mapping",
-            "Domain\\DTO\\Request",
-            "Domain\\DTO\\Response",
             "Services"
         };
 
@@ -105,7 +112,10 @@ public class GenerateService : IGenerateService
 
         var tableColumnsFilterList = infoTable?.Where(info => filter.TableColumnsFilter != null && filter.TableColumnsFilter.Contains(info.ColumnName)).ToList();
 
-        var output = RenderTemplate(templateContent, new { filter.EntityName, filter.IsServerSide, tableColumnsFilterList, infoTable });
+        var kebabCase = filter.EntityName.ToKebabCase();
+        var entityLabel = filter.EntityName.ToLabel();
+
+        var output = RenderTemplate(templateContent, new { filter.EntityName, filter.IsServerSide, filter.GenerateFrontendFilter.TableColumnsList, tableColumnsFilterList, infoTable, kebabCase, entityLabel });
 
         string directoryPath = Path.Combine(projectPath, targetDirectory);
         if (!Directory.Exists(directoryPath))
@@ -131,7 +141,9 @@ public class GenerateService : IGenerateService
 
         string fileContent = await File.ReadAllTextAsync(filePath);
 
-        string renderedLine = RenderTemplate(templateText, new { entityName });
+        var kebabCase = entityName.ToKebabCase();
+
+        string renderedLine = RenderTemplate(templateText, new { entityName, kebabCase });
 
         if (avoidDuplicates && fileContent.Contains(renderedLine))
             return;
@@ -230,10 +242,12 @@ public class GenerateService : IGenerateService
             },
             TemplateType.Client => fileType switch
             {
-                "Service" => $"{entityName.ToLowerFirst()}.service.ts",
-                "Model" => $"{entityName}.ts",
-                "Routing" => $"{entityName.ToLowerFirst()}-routing.module.ts",
-                _ => $"{entityName.ToLowerFirst()}-{fileType.ToLower()}.ts"
+                "Service" => $"{entityName.ToKebabCase()}.service.ts",
+                "Model" => $"{entityName}Type.ts",
+                "Routing" => $"{entityName.ToKebabCase()}-routing.module.ts",
+                "ListHtml" => $"{entityName.ToKebabCase()}-list.component.html",
+                "ListTs" => $"{entityName.ToKebabCase()}-list.component.ts",
+                _ => $"{entityName.ToKebabCase()}.{fileType.ToLower()}.ts"
             },
             _ => throw new ValidationException("Tipo de template não suportado.")
         };

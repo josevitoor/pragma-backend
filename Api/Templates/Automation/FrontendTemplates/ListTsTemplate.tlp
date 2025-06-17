@@ -1,0 +1,24 @@
+import { Component, Injector } from '@angular/core';
+import { {{ entity_name }}Type } from 'src/app/models/{{ entity_name }}Type';
+import { {{ entity_name }}Service } from 'src/app/services/{{ kebab_case }}.service';
+import { BaseResourceListComponent } from 'tce-ng-lib';
+import { FormBuilder } from '@angular/forms';
+
+@Component({
+  selector: 'intratce-{{ kebab_case }}-list',
+  templateUrl: './{{ kebab_case }}-list.component.html'
+})
+export class {{ entity_name }}ListComponent extends BaseResourceListComponent<{{ entity_name }}Type> {
+  service: {{ entity_name }}Service;
+
+  constructor(private injector: Injector, private formBuilder: FormBuilder) {
+    super(new {{ entity_name }}Service(injector));
+    this.service = injector.get({{ entity_name }}Service);
+
+    this.resourceFilterForm = this.formBuilder.group({
+      {{~ for filter in table_columns_filter_list ~}}
+      {{ filter.column_name | string.slice(0, 1) | string.downcase }}{{ filter.column_name | string.slice(1) }}: [],
+      {{~ end ~}}
+    });
+  }
+}

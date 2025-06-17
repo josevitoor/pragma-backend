@@ -2,14 +2,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KubernetesModule, TceNgLibModule } from 'tce-ng-lib';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
-import { {{ entity_name }}RoutingModule } from './{{ entity_name | string.downcase }}-routing.module';
-import { {{ entity_name }}ListComponent } from './{{ entity_name | string.downcase }}-list/{{ entity_name | string.downcase }}-list.component';
-import { {{ entity_name }}FormComponent } from './{{ entity_name | string.downcase }}-form/{{ entity_name | string.downcase }}-form.component';
+import { {{ entity_name }}RoutingModule } from './{{ kebab_case }}-routing.module';
+import { {{ entity_name }}ListComponent } from './{{ kebab_case }}-list/{{ kebab_case }}-list.component';
+//import { {{ entity_name }}FormComponent } from './{{ kebab_case }}-form/{{ kebab_case }}-form.component';
 
 @NgModule({
   declarations: [
-    {{ entity_name }}FormComponent,
-    {{ entity_name }}ListComponent
+    {{ entity_name }}ListComponent,
+    //{{ entity_name }}FormComponent
   ],
   imports: [
     CommonModule,
