@@ -79,7 +79,7 @@
             </td>
           </tr>
           <tr *ngIf="(resources$ | async)?.length == 0">
-            <td colspan="{{ table_columns_list.size + 1 }}">
+            <td colspan="{{ table_columns_list.size + 2 }}">
               Nenhum {{ entity_label }} encontrado.
             </td>
           </tr>
