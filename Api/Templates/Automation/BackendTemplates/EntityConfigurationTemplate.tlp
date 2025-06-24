@@ -10,8 +10,9 @@ public class {{ entity_name }}EntityConfiguration : IEntityTypeConfiguration<{{ 
     {
         builder.ToTable("{{ info_table[0].table_name }}");
 
-        builder.HasKey(e => e.{{ info_table[0].column_name }});
+        builder.HasKey(e => e.{{ primary_key_column }});
 {{ for column in info_table }}
+{{~ if column.column_name != primary_key_column ~}}
         builder.Property(e => e.{{ column.column_name }})
             .HasColumnName("{{ column.column_name }}")
             .HasColumnType("{{ column.data_type }}")
@@ -21,6 +22,7 @@ public class {{ entity_name }}EntityConfiguration : IEntityTypeConfiguration<{{ 
             {{- if column.max_length -}}
             .HasMaxLength({{ column.max_length }})
             {{- end -}};
+{{~ end ~}}
 {{ end }}
     }
 }

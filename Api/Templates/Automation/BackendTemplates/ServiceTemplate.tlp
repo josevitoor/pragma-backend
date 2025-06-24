@@ -20,7 +20,7 @@ public class {{ entity_name }}Service : BaseService<{{ entity_name }}>, I{{ enti
     {
     }
 
-    public async Task<{{ if is_server_side }}IPaginate<{{ entity_name }}>{{ else }}IEnumerable<{{ entity_name }}> {{ end }}> GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}{{ entity_name }}Filter filter{{ end }})
+    public async Task<{{ if is_server_side }}IPaginate<{{ entity_name }}>{{ else }}IEnumerable<{{ entity_name }}>{{ end }}> GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}{{ entity_name }}Filter filter{{ end }})
     {
         {{- if table_columns_filter_list && table_columns_filter_list.size > 0 }}
         var predicate = PredicateBuilder.New<{{ entity_name }}>(true);

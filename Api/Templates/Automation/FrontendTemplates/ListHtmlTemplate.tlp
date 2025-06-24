@@ -69,12 +69,12 @@
               <fa-icon
                 icon="edit"
                 tooltip="Editar"
-                [routerLink]="[item.id, 'edit']"
+                [routerLink]="[item.{{ primary_key_column | string.slice(0, 1) | string.downcase }}{{ primary_key_column | string.slice(1) }}, 'edit']" 
               ></fa-icon>
               <fa-icon
                 icon="trash"
                 tooltip="Excluir"
-                (click)="deleteResource(item.id)"
+                (click)="deleteResource(item.{{ primary_key_column | string.slice(0, 1) | string.downcase }}{{ primary_key_column | string.slice(1) }})" 
               ></fa-icon>
             </td>
           </tr>

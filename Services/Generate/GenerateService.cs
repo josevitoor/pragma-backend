@@ -128,6 +128,12 @@ public class GenerateService : IGenerateService
 
         var infoTable = filter.TableName != null ? await _informationService.GetInformationsByTableName(filter.ConnectionFilter, filter.TableName) : null;
 
+        var primaryKeyColumn = infoTable
+            ?.FirstOrDefault(x => x.TableConstraint != null
+                                && x.TableConstraint.ConstraintInfo != null
+                                && x.TableConstraint.ConstraintInfo.ConstraintType == "PRIMARY KEY")
+            ?.ColumnName;
+
         var tableColumnsFilterList = infoTable?.Where(info => filter.TableColumnsFilter != null && filter.TableColumnsFilter.Contains(info.ColumnName)).ToList();
 
         tableColumnsFilterList?.ForEach(info =>
@@ -140,7 +146,7 @@ public class GenerateService : IGenerateService
         var entityLabel = filter.EntityName.ToLabel();
         var prefix = GetSelector(filter.GenerateFrontendFilter.ProjectClientPath);
 
-        var output = RenderTemplate(templateContent, new { filter.EntityName, filter.IsServerSide, filter.GenerateFrontendFilter.TableColumnsList, tableColumnsFilterList, infoTable, kebabCase, entityLabel, prefix });
+        var output = RenderTemplate(templateContent, new { filter.EntityName, filter.IsServerSide, filter.GenerateFrontendFilter.TableColumnsList, tableColumnsFilterList, infoTable, kebabCase, entityLabel, prefix, primaryKeyColumn });
 
         string directoryPath = Path.Combine(projectPath, targetDirectory);
         if (!Directory.Exists(directoryPath))
