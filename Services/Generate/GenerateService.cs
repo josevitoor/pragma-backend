@@ -7,6 +7,7 @@ using FluentValidation;
 using System.Linq;
 using Domain.Enum;
 using CrossCutting.Util;
+using System.Text.Json;
 
 namespace Services;
 
@@ -50,6 +51,18 @@ public class GenerateService : IGenerateService
             templateText: "services.AddTransient<I{{ entity_name }}Service, {{ entity_name }}Service>();"
         );
 
+        var contextsDirectory = Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Domain", "Contexts");
+
+        var contextFile = Directory.GetFiles(contextsDirectory, "*Context.cs")
+            .FirstOrDefault();
+
+        await ModifyFileWithTemplateAsync(
+            filePath: contextFile,
+            entityName: generateFilter.EntityName,
+            insertAfterRegex: @"modelBuilder\.ApplyConfiguration\(.*\);",
+            templateText: "modelBuilder.ApplyConfiguration(new {{ entity_name }}EntityConfiguration());"
+        );
+
         // Geração de arquivos frontend
         await GenerateFileAsync("Service", generateFilter, "src\\app\\services", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
         await GenerateFileAsync("Model", generateFilter, "src\\app\\models", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
@@ -59,19 +72,21 @@ public class GenerateService : IGenerateService
         await GenerateFileAsync("ListTs", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-list", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
 
         await ModifyFileWithTemplateAsync(
-            filePath: Path.Combine(generateFilter.GenerateFrontendFilter.ProjectClientPath, "src\\app\\app.routes.module.ts"),
+            filePath: generateFilter.GenerateFrontendFilter.RouterPath,
             entityName: generateFilter.EntityName,
             insertAfter: "{ path: '404', component: PageNotFoundComponent },",
-            templateText: "{ path: '{{ kebab_case }}', loadChildren: () => import('./modulos/{{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}/{{ kebab_case }}.module').then((a) => a.{{ entity_name }}Module) },"
+            templateText: "{ path: '{{ kebab_case }}', loadChildren: () => import('src/app/modulos/{{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}/{{ kebab_case }}.module').then((a) => a.{{ entity_name }}Module) },"
         );
     }
 
-    public void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath)
+    public void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath, string routerFilePath)
     {
         if (string.IsNullOrWhiteSpace(projectApiRootPath))
             throw new ValidationException("Caminho da API do projeto não pode ser vazia.");
         if (string.IsNullOrWhiteSpace(projectApiRootPath))
             throw new ValidationException("Caminho do Cliente do projeto não pode ser vazio.");
+        if (string.IsNullOrWhiteSpace(routerFilePath))
+            throw new ValidationException("Caminho do arquivo de rotas não pode ser vazio.");
 
         var requiredApiPaths = new[]
         {
@@ -80,6 +95,7 @@ public class GenerateService : IGenerateService
             "Api\\Controllers",
             "Domain\\Entities",
             "Domain\\Mapping",
+            "Domain\\Contexts",
             "Services"
         };
 
@@ -102,6 +118,8 @@ public class GenerateService : IGenerateService
             var fullPath = Path.Combine(projectClientRootPath, relativePath);
             EnsurePathExists(fullPath, TemplateType.Client);
         }
+
+        EnsureRouterContainsInsertPoint(routerFilePath);
     }
 
     private async Task GenerateFileAsync(string fileType, GenerateFilter filter, string targetDirectory, string projectPath, TemplateType templateType)
@@ -112,10 +130,17 @@ public class GenerateService : IGenerateService
 
         var tableColumnsFilterList = infoTable?.Where(info => filter.TableColumnsFilter != null && filter.TableColumnsFilter.Contains(info.ColumnName)).ToList();
 
+        tableColumnsFilterList?.ForEach(info =>
+        {
+            info.ColumnMap = filter.GenerateFrontendFilter.TableColumnsList
+                ?.FirstOrDefault(c => c.DatabaseColumn == info.ColumnName);
+        });
+
         var kebabCase = filter.EntityName.ToKebabCase();
         var entityLabel = filter.EntityName.ToLabel();
+        var prefix = GetSelector(filter.GenerateFrontendFilter.ProjectClientPath);
 
-        var output = RenderTemplate(templateContent, new { filter.EntityName, filter.IsServerSide, filter.GenerateFrontendFilter.TableColumnsList, tableColumnsFilterList, infoTable, kebabCase, entityLabel });
+        var output = RenderTemplate(templateContent, new { filter.EntityName, filter.IsServerSide, filter.GenerateFrontendFilter.TableColumnsList, tableColumnsFilterList, infoTable, kebabCase, entityLabel, prefix });
 
         string directoryPath = Path.Combine(projectPath, targetDirectory);
         if (!Directory.Exists(directoryPath))
@@ -215,6 +240,15 @@ public class GenerateService : IGenerateService
         if (File.Exists(fullPath) || Directory.Exists(fullPath))
             return;
 
+        if (fullPath.Contains("Domain\\Contexts"))
+        {
+            var contextFile = Directory.GetFiles(fullPath, "*Context.cs").FirstOrDefault();
+            if (contextFile != null)
+                return;
+
+            throw new ValidationException($"Estrutura inválida no caminho de destino API. Arquivo obrigatório não encontrado: {fullPath}.*Context.cs");
+        }
+
         string tipoProjeto = templateType switch
         {
             TemplateType.Api => "API",
@@ -227,6 +261,21 @@ public class GenerateService : IGenerateService
         throw new ValidationException(
             $"Estrutura inválida no caminho de destino {tipoProjeto}. {tipoAlvo.Capitalize()} obrigatório não encontrado: {fullPath}"
         );
+    }
+
+    private void EnsureRouterContainsInsertPoint(string routerFilePath)
+    {
+        if (!File.Exists(routerFilePath))
+            throw new ValidationException($"Arquivo de rotas não encontrado em: {routerFilePath}");
+
+        var content = File.ReadAllText(routerFilePath);
+
+        const string insertPoint = "{ path: '404', component: PageNotFoundComponent }";
+
+        if (!content.Contains(insertPoint))
+            throw new ValidationException(
+                $"O arquivo de rotas '{routerFilePath}' não contém o ponto de inserção obrigatório."
+            );
     }
 
     private string GetFileName(string fileType, string entityName, TemplateType templateType)
@@ -251,5 +300,20 @@ public class GenerateService : IGenerateService
             },
             _ => throw new ValidationException("Tipo de template não suportado.")
         };
+    }
+
+    private string GetSelector(string clientProjectPath)
+    {
+        var angularJsonPath = Path.Combine(clientProjectPath, "angular.json");
+        var json = File.ReadAllText(angularJsonPath);
+        var doc = JsonDocument.Parse(json);
+
+        var root = doc.RootElement;
+        var projects = root.GetProperty("projects");
+
+        var firstProject = projects.EnumerateObject().First();
+        var prefix = firstProject.Value.GetProperty("prefix").GetString();
+
+        return prefix;
     }
 }

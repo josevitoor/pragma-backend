@@ -7,7 +7,7 @@
         {{~ for filter in table_columns_filter_list ~}}
         <div class="col-3">
           <tce-input-field
-            label="{{ filter.label }}"
+            label="{{ filter.column_map.display_name }}"
             formControlName="{{ filter.column_name | string.slice(0, 1) | string.downcase }}{{ filter.column_name | string.slice(1) }}"
             type="text"
             [control]="resourceFilterForm.get('{{ filter.column_name | string.slice(0, 1) | string.downcase }}{{ filter.column_name | string.slice(1) }}')"

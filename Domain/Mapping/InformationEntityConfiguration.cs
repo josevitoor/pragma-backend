@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infra.Mapping;
+
 public class InformationEntityConfiguration : IEntityTypeConfiguration<Information>
 {
     public void Configure(EntityTypeBuilder<Information> builder)
@@ -29,5 +30,7 @@ public class InformationEntityConfiguration : IEntityTypeConfiguration<Informati
 
         builder.Property(i => i.MaxLength)
             .HasColumnName("CHARACTER_MAXIMUM_LENGTH");
+
+        builder.Ignore(i => i.ColumnMap);
     }
 }

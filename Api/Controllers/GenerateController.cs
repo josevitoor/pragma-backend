@@ -46,13 +46,14 @@ public class GenerateController : ControllerBase
     /// </summary>
     /// <param name="projectApiRootPath"></param>
     /// <param name="projectClientRootPath"></param>
+    /// <param name="routerFilePath"></param>
     /// <response code="200">Sucesso</response>
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("validate-structure")]
-    public IActionResult ValidateStructure([FromQuery] string projectApiRootPath, [FromQuery] string projectClientRootPath)
+    public IActionResult ValidateStructure([FromQuery] string projectApiRootPath, [FromQuery] string projectClientRootPath, [FromQuery] string routerFilePath)
     {
-        _generateService.ValidateProjectStructure(projectApiRootPath, projectClientRootPath);
+        _generateService.ValidateProjectStructure(projectApiRootPath, projectClientRootPath, routerFilePath);
         return Ok();
     }
 }

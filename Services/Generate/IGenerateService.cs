@@ -6,5 +6,5 @@ namespace Services;
 public interface IGenerateService
 {
     Task GenerateCrudFiles(GenerateFilter generateFilter);
-    void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath);
+    void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath, string routerFilePath);
 }

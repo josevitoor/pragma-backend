@@ -1,4 +1,5 @@
 using CrossCutting.Util;
+using Domain.DTO.Request;
 
 namespace Domain.Entities;
 
@@ -11,4 +12,5 @@ public class Information
     public int? MaxLength { get; set; }
     public string Label => ColumnName.ToLabel();
     public TableConstraint TableConstraint { get; set; }
+    public ColumnMap ColumnMap { get; set; }
 }

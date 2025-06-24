@@ -5,7 +5,7 @@ import { BaseResourceListComponent } from 'tce-ng-lib';
 import { FormBuilder } from '@angular/forms';
 
 @Component({
-  selector: 'intratce-{{ kebab_case }}-list',
+  selector: '{{ prefix }}-{{ kebab_case }}-list',
   templateUrl: './{{ kebab_case }}-list.component.html'
 })
 export class {{ entity_name }}ListComponent extends BaseResourceListComponent<{{ entity_name }}Type> {
