@@ -14,6 +14,7 @@ export class {{ entity_name }}ListComponent extends BaseResourceListComponent<{{
   constructor(private injector: Injector, private formBuilder: FormBuilder) {
     super(new {{ entity_name }}Service(injector));
     this.service = injector.get({{ entity_name }}Service);
+    {{ if is_server_side }}this.enableServerSideOptions = true {{ end }}
 
     this.resourceFilterForm = this.formBuilder.group({
       {{~ for filter in table_columns_filter_list ~}}

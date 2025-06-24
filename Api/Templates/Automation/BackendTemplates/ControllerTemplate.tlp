@@ -45,7 +45,7 @@ public class {{ entity_name }}Controller : ControllerBase
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<{{ entity_name }}Get>), 200)]
+    [ProducesResponseType(typeof({{ if is_server_side }}IPaginate<{{ entity_name }}{{ else }}IEnumerable<{{ entity_name }}{{ end }}Get>), 200)]
     public async Task<IActionResult> GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}[FromQuery] {{ entity_name }}Filter filter{{ end }})
     {
         {{ if is_server_side }}IPaginate<{{ entity_name }}>{{ else }}IEnumerable<{{ entity_name }}>{{ end }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s = await _service.GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}filter{{ end }});

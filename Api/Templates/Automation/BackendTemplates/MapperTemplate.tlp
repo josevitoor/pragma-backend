@@ -2,6 +2,10 @@ using AutoMapper;
 using Domain.DTO.Request;
 using Domain.DTO.Response;
 using Domain.Entities;
+{{~ if is_server_side ~}}
+using TCE.Base;
+using TCE.Base.Repository._BaseRepository.Paging;
+{{~ end ~}}
 
 namespace Application.AutoMapper;
 
@@ -17,5 +21,6 @@ public class {{ entity_name }}Map : Profile
     {
         CreateMap<{{ entity_name }}Post, {{ entity_name }}>().ReverseMap();
         CreateMap<{{ entity_name }}Get, {{ entity_name }}>().ReverseMap();
+        {{ if is_server_side }}CreateMap(typeof(IPaginate<>), typeof(IPaginate<>)).ConvertUsing(typeof(PaginateConverter<,>));{{ end }}
     }
 }
