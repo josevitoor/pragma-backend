@@ -1,13 +1,13 @@
 <tce-container>
-  <tce-container-header [title]="pageTitle"></tce-container-header>
+  <tce-container-header [title]="pageTitle" [showBtn]="false"></tce-container-header>
   <main class="mt-3">
     <form [formGroup]="resourceForm">
       <fieldset>
         <small class="right-form">(*) Campos Obrigatórios</small>
         <legend>Formulário de {{ entity_label }}</legend>
         <div class="form-row mt-2">
-{{ for column in info_table }}
-{{- if column.column_name != primary_key_column }}
+{{~ for column in info_table ~}}
+{{~ if column.column_name != primary_key_column ~}}
           <tce-input-field
             class="col-3"
             label="{{ column.label }}"
@@ -16,8 +16,8 @@
             [control]="resourceForm.get('{{ column.column_name | string.slice(0, 1) | string.downcase }}{{ column.column_name | string.slice(1) }}')"
             {{ if column.max_length }}maxCaracteres="{{ column.max_length }}"{{ end }}
           ></tce-input-field>
-{{ end }}
-{{ end }}
+{{~ end ~}}
+{{~ end ~}}
         </div>
       </fieldset>
 

@@ -20,11 +20,11 @@ export class {{ entity_name }}FormComponent
 
     this.resourceForm = this.formBuilder.group({
       {{ primary_key_column | string.slice(0, 1) | string.downcase }}{{ primary_key_column | string.slice(1) }}: [null],
-{{- for column in info_table }}
+{{ for column in info_table -}}
 {{~ if column.column_name != primary_key_column ~}}
       {{ column.column_name | string.slice(0, 1) | string.downcase }}{{ column.column_name | string.slice(1) }}: [null{{ if column.is_nullable == "NO" || column.max_length }}, [{{- if column.is_nullable == "NO" }}Validators.required{{ end }}{{- if column.is_nullable == "NO" && column.max_length }}, {{ end }}{{- if column.max_length }}Validators.maxLength({{ column.max_length }}){{ end }}]{{ end }}],
 {{~ end ~}}
-{{- end }}
+{{- end ~}}
     });
 
     this.service = injector.get({{ entity_name }}Service);

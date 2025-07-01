@@ -22,4 +22,8 @@ export class {{ entity_name }}ListComponent extends BaseResourceListComponent<{{
       {{~ end ~}}
     });
   }
+
+  async ngOnInit(): Promise<void> {
+    await super.ngOnInit();
+  }
 }

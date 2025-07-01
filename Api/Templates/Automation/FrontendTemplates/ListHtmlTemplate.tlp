@@ -38,9 +38,7 @@
           <tr>
             <th></th>
             {{~ for column in table_columns_list ~}}
-            <th{{ if !is_server_side }} tceSortable="{{ column.database_column | string.slice(0, 1) | string.downcase }}{{ column.database_column | string.slice(1) }}" (sort)="onSort($event)" {{ end }}>
-              {{ column.display_name }}
-            </th>
+            <th{{ if !is_server_side }} tceSortable="{{ column.database_column | string.slice(0, 1) | string.downcase }}{{ column.database_column | string.slice(1) }}" (sort)="onSort($event)" {{ end }}>{{ column.display_name }}</th>
             {{~ end ~}}
             <th>Ações</th>
           </tr>
@@ -61,9 +59,7 @@
           >
             <td></td>
             {{~ for column in table_columns_list ~}}
-            <td>
-                {{ "{{ item." }}{{ column.database_column | string.slice(0, 1) | string.downcase }}{{ column.database_column | string.slice(1) }}{{ " }}" }}
-            </td>
+            <td>{{ "{{ item." }}{{ column.database_column | string.slice(0, 1) | string.downcase }}{{ column.database_column | string.slice(1) }}{{ " }}" }}</td>
             {{~ end ~}}
             <td>
               <fa-icon
