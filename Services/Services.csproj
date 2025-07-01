@@ -1,23 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	
     <PropertyGroup>
-	    <TargetFramework>net8.0</TargetFramework>
+	    <TargetFramework>net6.0</TargetFramework>
 		<NoWarn>NU1701,NU1803</NoWarn>
     </PropertyGroup>
 	
   <ItemGroup>
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-    <PackageReference Include="FluentValidation" Version="11.9.0" />
-    <PackageReference Include="itext7.pdfhtml" Version="3.0.5" />
-    <PackageReference Include="MadMilkman.Docx" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RabbitMQ.Client" Version="6.5.0" />
     <PackageReference Include="SmartFormat.NET" Version="3.2.1" />
     <PackageReference Include="System.IO.Packaging" Version="4.6.0" />
-    <PackageReference Include="TCE.TemplateEmail" Version="1.0.4" />
-	  <PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="5.1.5" />
-  	<PackageReference Include="TCE.Base.Net6" Version="1.0.26" />
+	  <PackageReference Include="TCE.TemplateEmail" Version="1.0.4" />
+  	<PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="6.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.1" />
     <PackageReference Include="Scriban" Version="6.0.0" />
   </ItemGroup>
 
