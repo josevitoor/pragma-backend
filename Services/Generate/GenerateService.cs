@@ -70,6 +70,8 @@ public class GenerateService : IGenerateService
         await GenerateFileAsync("Routing", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
         await GenerateFileAsync("ListHtml", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-list", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
         await GenerateFileAsync("ListTs", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-list", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+        await GenerateFileAsync("FormHtml", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-form", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+        await GenerateFileAsync("FormTs", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-form", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
 
         await ModifyFileWithTemplateAsync(
             filePath: generateFilter.GenerateFrontendFilter.RouterPath,
@@ -105,6 +107,7 @@ public class GenerateService : IGenerateService
             "src\\app\\services",
             "src\\app\\models",
             "src\\app\\modulos",
+            "angular.json"
         };
 
         foreach (var relativePath in requiredApiPaths)
@@ -302,6 +305,8 @@ public class GenerateService : IGenerateService
                 "Routing" => $"{entityName.ToKebabCase()}-routing.module.ts",
                 "ListHtml" => $"{entityName.ToKebabCase()}-list.component.html",
                 "ListTs" => $"{entityName.ToKebabCase()}-list.component.ts",
+                "FormHtml" => $"{entityName.ToKebabCase()}-form.component.html",
+                "FormTs" => $"{entityName.ToKebabCase()}-form.component.ts",
                 _ => $"{entityName.ToKebabCase()}.{fileType.ToLower()}.ts"
             },
             _ => throw new ValidationException("Tipo de template não suportado.")

@@ -1,0 +1,40 @@
+import { Component, Injector, OnInit } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import { {{ entity_name }}Type } from 'src/app/models/{{ entity_name }}Type';
+import { {{ entity_name }}Service } from 'src/app/services/{{ kebab_case }}.service';
+import { BaseResourceFormComponent } from 'tce-ng-lib';
+
+@Component({
+  selector: '{{ prefix }}-{{ kebab_case }}-form',
+  templateUrl: './{{ kebab_case }}-form.component.html'
+})
+export class {{ entity_name }}FormComponent
+  extends BaseResourceFormComponent<{{ entity_name }}Type>
+  implements OnInit
+{
+  pageTitle: string;
+  service: {{ entity_name }}Service;
+
+  constructor(protected injector: Injector, private formBuilder: FormBuilder) {
+    super(new {{ entity_name }}Service(injector));
+
+    this.resourceForm = this.formBuilder.group({
+      {{ primary_key_column | string.slice(0, 1) | string.downcase }}{{ primary_key_column | string.slice(1) }}: [null],
+{{- for column in info_table }}
+{{~ if column.column_name != primary_key_column ~}}
+      {{ column.column_name | string.slice(0, 1) | string.downcase }}{{ column.column_name | string.slice(1) }}: [null{{ if column.is_nullable == "NO" || column.max_length }}, [{{- if column.is_nullable == "NO" }}Validators.required{{ end }}{{- if column.is_nullable == "NO" && column.max_length }}, {{ end }}{{- if column.max_length }}Validators.maxLength({{ column.max_length }}){{ end }}]{{ end }}],
+{{~ end ~}}
+{{- end }}
+    });
+
+    this.service = injector.get({{ entity_name }}Service);
+    this.pageTitle =
+      this.currentAction === 'new'
+        ? 'CADASTRAR {{ entity_label | string.upcase }}'
+        : 'EDITAR {{ entity_label | string.upcase }}';
+  }
+
+  async ngOnInit(): Promise<void> {
+    await super.ngOnInit();
+  }
+}

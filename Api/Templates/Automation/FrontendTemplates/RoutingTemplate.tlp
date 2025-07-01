@@ -1,26 +1,27 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { {{ entity_name }}ListComponent } from './{{ kebab_case }}-list/{{ kebab_case }}-list.component';
-//import { {{ entity_name }}FormComponent } from './{{ kebab_case }}-form/{{ kebab_case }}-form.component';
+import { {{ entity_name }}FormComponent } from './{{ kebab_case }}-form/{{ kebab_case }}-form.component';
 
 const routes: Routes = [
   {
     path: '',
-    data: { breadcrumb: 'Gerenciar {{ entity_name }}' },
-    component: {{ entity_name }}ListComponent,
+    data: { breadcrumb: 'Gerenciar {{ entity_label }}' },
     children: [
-      /*
+      {
+        path: '',
+        component: {{ entity_name }}ListComponent,
+      },
       {
         path: 'new',
         component: {{ entity_name }}FormComponent,
-        data: { breadcrumb: 'Cadastrar {{ entity_name }}' },
+        data: { breadcrumb: 'Cadastrar {{ entity_label }}' },
       },
       {
         path: ':id/edit',
         component: {{ entity_name }}FormComponent,
-        data: { breadcrumb: 'Editar {{ entity_name }}' },
+        data: { breadcrumb: 'Editar {{ entity_label }}' },
       },
-      */
     ],
   },
 ];

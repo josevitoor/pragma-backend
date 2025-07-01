@@ -83,7 +83,7 @@ public class {{ entity_name }}Controller : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
     [ProducesResponseType(typeof({{ entity_name }}), 201)]
-    public IActionResult CreateAsync([FromBody] {{ entity_name }}Post dto)
+    public IActionResult Create([FromBody] {{ entity_name }}Post dto)
     {
         {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = _mapper.Map<{{ entity_name }}>(dto);
         {{ entity_name }} result = _service.Add({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
