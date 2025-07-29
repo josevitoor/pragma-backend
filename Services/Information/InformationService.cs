@@ -40,7 +40,7 @@ public class InformationService : BaseService<Information>, IInformationService
 
     private async static Task<DynamicDbContext> CreateDynamicDbContext(ConnectionFilter filter)
     {
-        var connectionString = $"Data Source={filter.Host},{filter.Port};uid={filter.User};password={filter.Password};Initial Catalog={filter.Database};";
+        var connectionString = $"Data Source={filter.Servidor},{filter.Porta};uid={filter.Usuario};password={filter.Senha};Initial Catalog={filter.BaseDados};";
 
         var optionsBuilder = new DbContextOptionsBuilder<DynamicDbContext>();
         optionsBuilder.UseSqlServer(connectionString);

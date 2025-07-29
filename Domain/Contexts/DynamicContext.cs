@@ -3,6 +3,7 @@ using Infra.Mapping;
 using Microsoft.EntityFrameworkCore;
 
 namespace Domain;
+
 public class DynamicDbContext : DbContext
 {
     public DynamicDbContext(DbContextOptions<DynamicDbContext> options) : base(options) { }
@@ -14,5 +15,6 @@ public class DynamicDbContext : DbContext
         modelBuilder.ApplyConfiguration(new InformationEntityConfiguration());
         modelBuilder.ApplyConfiguration(new TableConstraintEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ConstraintInfoEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfiguracaoGeracaoEntityConfiguration());
     }
 }

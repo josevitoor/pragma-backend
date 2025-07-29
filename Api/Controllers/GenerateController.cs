@@ -51,6 +51,7 @@ public class GenerateController : ControllerBase
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("validate-structure")]
+    [ProducesResponseType(200)]
     public IActionResult ValidateStructure([FromQuery] string projectApiRootPath, [FromQuery] string projectClientRootPath, [FromQuery] string routerFilePath)
     {
         _generateService.ValidateProjectStructure(projectApiRootPath, projectClientRootPath, routerFilePath);

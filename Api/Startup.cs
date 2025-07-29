@@ -81,7 +81,7 @@ public class Startup
 
         ConfigureInfra.Configurar(services, _configuration);
 
-        DapperServiceCollection.AddDapper(services, options => options.ConnectionString = _configuration["ConnectionStrings:BdAutomationTCE_uAutomationTCE_Config"]);
+        DapperServiceCollection.AddDapper(services, options => options.ConnectionString = _configuration["ConnectionStrings:BdPragmaTCE_uPragmaTCE_Config"]);
 
 
         services.AddControllers().AddJsonOptions(options =>

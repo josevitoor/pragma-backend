@@ -13,8 +13,8 @@ namespace Services;
 
 public class GenerateService : IGenerateService
 {
-    private const string ApiTemplatesDirectory = "Templates\\Automation\\BackendTemplates";
-    private const string ClientTemplatesDirectory = "Templates\\Automation\\FrontendTemplates";
+    private const string ApiTemplatesDirectory = "Templates\\Pragma\\BackendTemplates";
+    private const string ClientTemplatesDirectory = "Templates\\Pragma\\FrontendTemplates";
     private readonly IInformationService _informationService;
     public GenerateService(IInformationService informationService)
     {
