@@ -1,4 +1,5 @@
 
+using Application.AutoMapper.Comunicacao;
 using AutoMapper;
 
 namespace Application.AutoMapper;
@@ -14,6 +15,7 @@ public static class ConfigureMap
     {
         var mapperConfig = new MapperConfiguration(cfg =>
         {
+            cfg.AddProfile<ConfiguracaoGeracaoMappingProfile>();
         });
 
         IMapper mapper = mapperConfig.CreateMapper();

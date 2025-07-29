@@ -44,6 +44,22 @@ public class ConfiguracaoGeracaoController : ControllerBase
         return Ok(configuracoes);
     }
 
+
+    /// <summary>
+    /// Retorna todas as configurações do operador
+    /// </summary>
+    /// <response code="200">Sucesso</response>
+    /// <response code="401">Não autorizado</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [HttpGet("operador")]
+    [ProducesResponseType(typeof(IEnumerable<ConfiguracaoGeracaoResponse>), 200)]
+    public async Task<IActionResult> GetAllByOperadorAsync()
+    {
+        var configuracoes = await _configuracaoGeracaoService.GetAllByOperador();
+        var result = _mapper.Map<IEnumerable<ConfiguracaoGeracaoResponse>>(configuracoes);
+        return Ok(result);
+    }
+
     /// <summary>
     /// Retorna configuração por Id
     /// </summary>

@@ -8,8 +8,7 @@ public class ConfiguracaoGeracaoMappingProfile : Profile
 
     public ConfiguracaoGeracaoMappingProfile()
     {
-
         CreateMap<ConfiguracaoGeracao, ConfiguracaoGeracaoRequest>().ReverseMap();
-
+        CreateMap<ConfiguracaoGeracao, ConfiguracaoGeracaoResponse>().ReverseMap();
     }
 }
