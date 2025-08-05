@@ -21,12 +21,13 @@ public static class DependencyInjectionConfig
     public static IServiceCollection ResolveDependencies(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(configuration);
+        services.AddTransient<IConfiguracaoCaminhosService, ConfiguracaoCaminhosService>();
         services.AddTransient<IUnitOfWork, UnitOfWork<PragmaContext>>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddAutoMapper(typeof(IMapper), typeof(Mapper));
         services.AddTransient<IInformationService, InformationService>();
         services.AddTransient<IGenerateService, GenerateService>();
-        services.AddTransient<IConfiguracaoGeracaoService, ConfiguracaoGeracaoService>();
+        services.AddTransient<IConfiguracaoConexaoBancoService, ConfiguracaoConexaoBancoService>();
 
         return services;
     }

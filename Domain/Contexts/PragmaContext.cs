@@ -13,6 +13,7 @@ public class PragmaContext : AuditDbContext
         modelBuilder.ApplyConfiguration(new InformationEntityConfiguration());
         modelBuilder.ApplyConfiguration(new TableConstraintEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ConstraintInfoEntityConfiguration());
-        modelBuilder.ApplyConfiguration(new ConfiguracaoGeracaoEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfiguracaoConexaoBancoEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfiguracaoCaminhosEntityConfiguration());
     }
 }

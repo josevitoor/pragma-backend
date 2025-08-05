@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Services;
 
-public class ConfiguracaoGeracaoValidator : AbstractValidator<ConfiguracaoGeracao>
+public class ConfiguracaoConexaoBancoValidator : AbstractValidator<ConfiguracaoConexaoBanco>
 {
-    public ConfiguracaoGeracaoValidator()
+    public ConfiguracaoConexaoBancoValidator()
     {
         RuleFor(p => p.BaseDados)
             .NotEmpty()
@@ -26,18 +26,6 @@ public class ConfiguracaoGeracaoValidator : AbstractValidator<ConfiguracaoGeraca
         RuleFor(p => p.Porta)
             .NotNull()
             .GreaterThan(0);
-
-        RuleFor(p => p.CaminhoApi)
-            .NotEmpty()
-            .MaximumLength(500);
-
-        RuleFor(p => p.CaminhoCliente)
-            .NotEmpty()
-            .MaximumLength(500);
-
-        RuleFor(p => p.CaminhoArquivoRota)
-            .NotEmpty()
-            .MaximumLength(500);
 
         RuleFor(p => p.DataInclusao)
             .NotNull();

@@ -13,8 +13,9 @@ public class DynamicDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new InformationEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfiguracaoCaminhosEntityConfiguration());
         modelBuilder.ApplyConfiguration(new TableConstraintEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ConstraintInfoEntityConfiguration());
-        modelBuilder.ApplyConfiguration(new ConfiguracaoGeracaoEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfiguracaoConexaoBancoEntityConfiguration());
     }
 }

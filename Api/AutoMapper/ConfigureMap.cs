@@ -15,7 +15,8 @@ public static class ConfigureMap
     {
         var mapperConfig = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<ConfiguracaoGeracaoMappingProfile>();
+            cfg.AddProfile<ConfiguracaoCaminhosMap>();
+            cfg.AddProfile<ConfiguracaoConexaoBancoMappingProfile>();
         });
 
         IMapper mapper = mapperConfig.CreateMapper();

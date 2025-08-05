@@ -4,16 +4,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infra.Mapping;
 
-public class ConfiguracaoGeracaoEntityConfiguration : IEntityTypeConfiguration<ConfiguracaoGeracao>
+public class ConfiguracaoConexaoBancoEntityConfiguration : IEntityTypeConfiguration<ConfiguracaoConexaoBanco>
 {
-    public void Configure(EntityTypeBuilder<ConfiguracaoGeracao> builder)
+    public void Configure(EntityTypeBuilder<ConfiguracaoConexaoBanco> builder)
     {
-        builder.ToTable("Pragma_ConfiguracaoGeracao");
+        builder.ToTable("Pragma_ConfiguracaoConexaoBanco");
 
-        builder.HasKey(e => e.IdConfiguracao);
+        builder.HasKey(e => e.IdConfiguracaoConexaoBanco);
 
-        builder.Property(e => e.IdConfiguracao)
-               .HasColumnName("IdConfiguracao");
+        builder.Property(e => e.IdConfiguracaoConexaoBanco)
+               .HasColumnName("IdConfiguracaoConexaoBanco");
 
         builder.Property(e => e.BaseDados)
                .HasColumnName("BaseDados")
@@ -37,21 +37,6 @@ public class ConfiguracaoGeracaoEntityConfiguration : IEntityTypeConfiguration<C
 
         builder.Property(e => e.Porta)
                .HasColumnName("Porta")
-               .IsRequired();
-
-        builder.Property(e => e.CaminhoApi)
-               .HasColumnName("CaminhoApi")
-               .HasMaxLength(500)
-               .IsRequired();
-
-        builder.Property(e => e.CaminhoCliente)
-               .HasColumnName("CaminhoCliente")
-               .HasMaxLength(500)
-               .IsRequired();
-
-        builder.Property(e => e.CaminhoArquivoRota)
-               .HasColumnName("CaminhoArquivoRota")
-               .HasMaxLength(500)
                .IsRequired();
 
         builder.Property(e => e.DataInclusao)
