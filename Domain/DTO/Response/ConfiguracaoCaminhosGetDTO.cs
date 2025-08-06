@@ -10,4 +10,6 @@ public class ConfiguracaoCaminhosResponse
     public string CaminhoCliente { get; set; }
 
     public string CaminhoArquivoRota { get; set; }
+
+    public DateTime DataInclusao { get; set; }
 }

@@ -11,7 +11,7 @@ import { FormBuilder } from '@angular/forms';
 export class {{ entity_name }}ListComponent extends BaseResourceListComponent<{{ entity_name }}Type> {
   service: {{ entity_name }}Service;
 
-  constructor(private injector: Injector, private formBuilder: FormBuilder) {
+  constructor(protected injector: Injector, private formBuilder: FormBuilder) {
     super(new {{ entity_name }}Service(injector));
     this.service = injector.get({{ entity_name }}Service);
     {{ if is_server_side }}this.enableServerSideOptions = true {{ end }}

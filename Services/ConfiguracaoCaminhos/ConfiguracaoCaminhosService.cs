@@ -28,6 +28,8 @@ public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IC
 
     public ConfiguracaoCaminhos Add(ConfiguracaoCaminhos configuracaoCaminhos)
     {
+        var tokenInfo = new TokenInfo(_tokenInfo);
+        configuracaoCaminhos.IdOperadorInclusao = int.Parse(tokenInfo.IdOperador);
         return base.Add<ConfiguracaoCaminhosValidator>(configuracaoCaminhos);
     }
 

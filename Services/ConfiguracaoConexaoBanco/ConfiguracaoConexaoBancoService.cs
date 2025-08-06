@@ -20,7 +20,18 @@ public class ConfiguracaoConexaoBancoService : BaseService<ConfiguracaoConexaoBa
     public async Task<IEnumerable<ConfiguracaoConexaoBanco>> GetAllByOperador()
     {
         var tokenInfo = new TokenInfo(_tokenInfo);
-        return await GetAllAsync(predicate: x => x.IdOperadorInclusao == int.Parse(tokenInfo.IdOperador));
+        var key = _configuration.GetValue<string>("Encrypt:Key")
+            ?? throw new ValidationException("Chave de criptografia não configurada.");
+        var encryptService = new EncryptPasswordService(key);
+
+        var configuracoes = await GetAllAsync(predicate: x => x.IdOperadorInclusao == int.Parse(tokenInfo.IdOperador));
+
+        foreach (var config in configuracoes)
+        {
+            config.Senha = encryptService.Decrypt(config.Senha);
+        }
+
+        return configuracoes;
     }
 
     public ConfiguracaoConexaoBanco Add(ConfiguracaoConexaoBanco configuracaoConexaoBanco)

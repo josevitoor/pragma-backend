@@ -1,3 +1,5 @@
+using System;
+
 namespace Domain.Entities;
 
 public class ConfiguracaoConexaoBancoResponse
@@ -9,4 +11,8 @@ public class ConfiguracaoConexaoBancoResponse
     public string Servidor { get; set; }
 
     public int Porta { get; set; }
+
+    public string Senha { get; set; }
+
+    public DateTime DataInclusao { get; set; }
 }
