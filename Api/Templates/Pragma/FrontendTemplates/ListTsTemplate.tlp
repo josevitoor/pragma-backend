@@ -19,7 +19,6 @@ export class {{ entity_name }}ListComponent extends BaseResourceListComponent<{{
     super(new {{ entity_name }}Service(injector));
     this.service = injector.get({{ entity_name }}Service);
     {{ if is_server_side }}this.enableServerSideOptions = true {{ end }}
-
     {{~ if table_columns_filter_list.size > 0 ~}}
     this.resourceFilterForm = this.formBuilder.group({
       {{~ for filter in table_columns_filter_list ~}}
@@ -27,12 +26,13 @@ export class {{ entity_name }}ListComponent extends BaseResourceListComponent<{{
       {{~ end ~}}
     });
     {{~ end ~}}
-
+    {{~ if !is_server_side ~}}
     this.searchTermFields = {
       {{~ for column in table_columns_list ~}}
       {{ column.database_column | string.slice(0, 1) | string.downcase }}{{ column.database_column | string.slice(1) }}: true{{ if for.last == false }},{{ end }}
       {{~ end ~}}
     };
+    {{~ end ~}}
   }
 
   async ngOnInit(): Promise<void> {

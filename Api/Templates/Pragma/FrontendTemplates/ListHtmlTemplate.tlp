@@ -4,7 +4,6 @@
 -->
 <tce-container>
   <tce-container-header title="{{ entity_label }}"></tce-container-header>
-
   {{~ if table_columns_filter_list.size > 0 ~}}
   <tce-filter class="my-4" (find)="onFilter()" (clear)="clearFilters()">
     <form [formGroup]="resourceFilterForm">
@@ -13,7 +12,7 @@
         <div class="col-3">
           <tce-input-field
             label="{{ filter.column_map.display_name }}"
-            placeholder="Digite {{ filter.filter.column_map.display_name }}"
+            placeholder="Digite {{ filter.column_map.display_name }}"
             formControlName="{{ filter.column_name | string.slice(0, 1) | string.downcase }}{{ filter.column_name | string.slice(1) }}"
             type="{{ filter.data_type | string.replace "tinyint" "number" | string.replace "smallint" "number" | string.replace "bigint" "number" | string.replace "int" "number" | string.replace "bit" "text" | string.replace "decimal" "number" | string.replace "numeric" "number" | string.replace "smallmoney" "number" | string.replace "money" "number" | string.replace "float" "number" | string.replace "real" "number" | string.replace "datetimeoffset" "date" | string.replace "smalldatetime" "date" | string.replace "datetime2" "date" | string.replace "datetime" "date" | string.replace "date" "date" | string.replace "time" "text" | string.replace "nvarchar" "text" | string.replace "varchar" "text" | string.replace "nchar" "text" | string.replace "char" "text" | string.replace "ntext" "text" | string.replace "text" "text" | string.replace "varbinary" "text" | string.replace "binary" "text" | string.replace "image" "text" }}"
             [control]="resourceFilterForm.get('{{ filter.column_name | string.slice(0, 1) | string.downcase }}{{ filter.column_name | string.slice(1) }}')"
@@ -24,13 +23,15 @@
     </form>
   </tce-filter>
   {{~ end ~}}
-
   <main>
     <tce-table
       [id]="'tabela-{{ entity_name }}'"
       (pageSizeChange)="pageSize = $event"
       (searchTermChange)="searchTerm = $event"
       (pageChange)="page = $event"
+      {{~ if is_server_side ~}}
+      [showSearchField]="false"
+      {{~ end ~}}
     >
       <div legend>
         <fa-icon icon="edit" class="ml-3"></fa-icon> Editar
@@ -66,7 +67,7 @@
           >
             <td></td>
             {{~ for column in table_columns_list ~}}
-            <td>{{ "{{ item." }}{{ column.database_column | string.slice(0, 1) | string.downcase }}{{ column.database_column | string.slice(1) }}{{ " }}" }}{{~ if column.data_type == "date" || column.data_type == "datetime" || column.data_type == "datetime2" || column.data_type == "datetimeoffset" || column.data_type == "smalldatetime"~}}{{ " | date: 'dd/MM/yyyy'" }}{{~ end ~}}</td>
+            <td>{{ "{{ item." }}{{ column.database_column | string.slice(0, 1) | string.downcase }}{{ column.database_column | string.slice(1) }}{{~ if column.data_type == "date" || column.data_type == "datetime" || column.data_type == "datetime2" || column.data_type == "datetimeoffset" || column.data_type == "smalldatetime" ~}}{{ " | date: 'dd/MM/yyyy'" }}{{~ end ~}}{{ " }}" }}</td>
             {{~ end ~}}
             <td>
               <fa-icon

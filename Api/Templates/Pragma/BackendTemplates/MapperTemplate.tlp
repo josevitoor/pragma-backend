@@ -25,6 +25,8 @@ public class {{ entity_name }}Map : Profile
     {
         CreateMap<{{ entity_name }}Post, {{ entity_name }}>().ReverseMap();
         CreateMap<{{ entity_name }}Get, {{ entity_name }}>().ReverseMap();
-        {{ if is_server_side }}CreateMap(typeof(IPaginate<>), typeof(IPaginate<>)).ConvertUsing(typeof(PaginateConverter<,>));{{ end }}
+        {{~ if is_server_side ~}}
+        CreateMap(typeof(IPaginate<>), typeof(IPaginate<>)).ConvertUsing(typeof(PaginateConverter<,>));
+        {{~ end ~}}
     }
 }

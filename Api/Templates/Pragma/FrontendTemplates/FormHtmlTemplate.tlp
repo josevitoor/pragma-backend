@@ -19,7 +19,6 @@
             type="{{ column.data_type | string.replace "tinyint" "number" | string.replace "smallint" "number" | string.replace "bigint" "number" | string.replace "int" "number" | string.replace "bit" "text" | string.replace "decimal" "number" | string.replace "numeric" "number" | string.replace "smallmoney" "number" | string.replace "money" "number" | string.replace "float" "number" | string.replace "real" "number" | string.replace "datetimeoffset" "date" | string.replace "smalldatetime" "date" | string.replace "datetime2" "date" | string.replace "datetime" "date" | string.replace "date" "date" | string.replace "time" "text" | string.replace "nvarchar" "text" | string.replace "varchar" "text" | string.replace "nchar" "text" | string.replace "char" "text" | string.replace "ntext" "text" | string.replace "text" "text" | string.replace "varbinary" "text" | string.replace "binary" "text" | string.replace "image" "text" }}"
             formControlName="{{ column.column_name | string.slice(0, 1) | string.downcase }}{{ column.column_name | string.slice(1) }}"
             [control]="resourceForm.get('{{ column.column_name | string.slice(0, 1) | string.downcase }}{{ column.column_name | string.slice(1) }}')"
-            {{ if column.max_length }}maxCaracteres="{{ column.max_length }}"{{ end }}
           ></tce-input-field>
 {{~ end ~}}
 {{~ end ~}}

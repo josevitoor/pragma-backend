@@ -8,6 +8,8 @@ using System.Linq;
 using Domain.Enum;
 using CrossCutting.Util;
 using System.Text.Json;
+using System;
+using LinqKit;
 
 namespace Services;
 
@@ -34,13 +36,13 @@ public class GenerateService : IGenerateService
         await GenerateFileAsync("Validator", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
         await GenerateFileAsync("Mapper", generateFilter, $"Api\\AutoMapper", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
 
-        if (generateFilter.TableColumnsFilter.Count() > 0)
+        if (generateFilter.TableColumnsFilter.Any())
             await GenerateFileAsync("Filter", generateFilter, "Domain\\Filter", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
 
         await ModifyFileWithTemplateAsync(
             filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Api\\AutoMapper\\ConfigureMap.cs"),
             entityName: generateFilter.EntityName,
-            insertAfterRegex: @"cfg\s*=>\s*\{",
+            insertAfterRegex: @"cfg\.AddProfile<.*?>\s*\(\);",
             templateText: "cfg.AddProfile<{{ entity_name }}Map>();"
         );
 
@@ -76,7 +78,7 @@ public class GenerateService : IGenerateService
         await ModifyFileWithTemplateAsync(
             filePath: generateFilter.GenerateFrontendFilter.RouterPath,
             entityName: generateFilter.EntityName,
-            insertAfter: "{ path: '404', component: PageNotFoundComponent },",
+            insertBefore: "{ path: '404', component: PageNotFoundComponent },",
             templateText: "{ path: '{{ kebab_case }}', loadChildren: () => import('src/app/modulos/{{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}/{{ kebab_case }}.module').then((a) => a.{{ entity_name }}Module) },"
         );
     }
@@ -145,6 +147,11 @@ public class GenerateService : IGenerateService
                 ?.FirstOrDefault(c => c.DatabaseColumn == info.ColumnName);
         });
 
+        filter.GenerateFrontendFilter.TableColumnsList.ForEach(columns =>
+        {
+            columns.DataType = infoTable?.FirstOrDefault(c => c.ColumnName == columns.DatabaseColumn).DataType;
+        });
+
         var kebabCase = filter.EntityName.ToKebabCase();
         var entityLabel = filter.EntityName.ToLabel();
         var prefix = GetSelector(filter.GenerateFrontendFilter.ProjectClientPath);
@@ -161,14 +168,13 @@ public class GenerateService : IGenerateService
         await File.WriteAllTextAsync(outputPath, output);
     }
 
-    private async Task ModifyFileWithTemplateAsync(string filePath,
+    private static async Task ModifyFileWithTemplateAsync(string filePath,
                                                    string entityName,
                                                    string insertAfter = null,
                                                    string insertBefore = null,
                                                    string insertAfterRegex = null,
                                                    string insertBeforeRegex = null,
-                                                   string templateText = null,
-                                                   bool avoidDuplicates = true)
+                                                   string templateText = null)
     {
         if (!File.Exists(filePath))
             throw new ValidationException($"Arquivo não encontrado: {filePath}");
@@ -179,14 +185,11 @@ public class GenerateService : IGenerateService
 
         string renderedLine = RenderTemplate(templateText, new { entityName, kebabCase });
 
-        if (avoidDuplicates && fileContent.Contains(renderedLine))
-            return;
-
         string updatedContent = InsertRenderedLine(fileContent, renderedLine, insertAfter, insertBefore, insertAfterRegex, insertBeforeRegex);
         await File.WriteAllTextAsync(filePath, updatedContent);
     }
 
-    private async Task<string> LoadTemplateContentAsync(string templateName, TemplateType templateType)
+    private static async Task<string> LoadTemplateContentAsync(string templateName, TemplateType templateType)
     {
         string baseTemplateDirectory = templateType switch
         {
@@ -203,19 +206,22 @@ public class GenerateService : IGenerateService
         return await File.ReadAllTextAsync(templatePath);
     }
 
-    private string RenderTemplate(string content, object model)
+    private static string RenderTemplate(string content, object model)
     {
         var template = Template.Parse(content);
         return template.Render(model).Trim();
     }
 
-    private string InsertRenderedLine(string content, string renderedLine, string insertAfter, string insertBefore, string insertAfterRegex, string insertBeforeRegex)
+    private static string InsertRenderedLine(string content, string renderedLine, string insertAfter, string insertBefore, string insertAfterRegex, string insertBeforeRegex)
     {
         if (!string.IsNullOrEmpty(insertAfterRegex))
         {
             var match = Regex.Match(content, insertAfterRegex);
             if (match.Success)
-                return content.Insert(match.Index + match.Length, "\n            " + renderedLine);
+            {
+                string indentation = GetIndentationAt(content, match.Index);
+                return content.Insert(match.Index + match.Length, $"{Environment.NewLine}{indentation}{renderedLine}");
+            }
             throw new ValidationException($"Regex não encontrou ponto de inserção: {insertAfterRegex}");
         }
 
@@ -223,7 +229,10 @@ public class GenerateService : IGenerateService
         {
             var match = Regex.Match(content, insertBeforeRegex);
             if (match.Success)
-                return content.Insert(match.Index, "            " + renderedLine + "\n");
+            {
+                string indentation = GetIndentationAt(content, match.Index);
+                return content.Insert(match.Index, $"{renderedLine}{Environment.NewLine}{indentation}");
+            }
             throw new ValidationException($"Regex não encontrou ponto de inserção: {insertBeforeRegex}");
         }
 
@@ -231,20 +240,39 @@ public class GenerateService : IGenerateService
         {
             int index = content.IndexOf(insertAfter);
             if (index != -1)
-                return content.Insert(index + insertAfter.Length, "\n        " + renderedLine);
+            {
+                string indentation = GetIndentationAt(content, index);
+                return content.Insert(index + insertAfter.Length, $"{Environment.NewLine}{indentation}{renderedLine}");
+            }
         }
 
         if (!string.IsNullOrEmpty(insertBefore))
         {
             int index = content.IndexOf(insertBefore);
             if (index != -1)
-                return content.Insert(index, "            " + renderedLine + "\n");
+            {
+                string indentation = GetIndentationAt(content, index);
+                return content.Insert(index, $"{renderedLine}{Environment.NewLine}{indentation}");
+            }
         }
 
         throw new ValidationException("É necessário definir um ponto de inserção.");
     }
+    
+    private static string GetIndentationAt(string content, int index)
+    {
+        int lineStart = content.LastIndexOf('\n', index);
+        if (lineStart == -1) lineStart = 0;
+        else lineStart += 1;
 
-    private void EnsurePathExists(string fullPath, TemplateType templateType)
+        int i = lineStart;
+        while (i < content.Length && (content[i] == ' ' || content[i] == '\t'))
+            i++;
+
+        return content.Substring(lineStart, i - lineStart);
+    }
+
+    private static void EnsurePathExists(string fullPath, TemplateType templateType)
     {
         if (File.Exists(fullPath) || Directory.Exists(fullPath))
             return;
@@ -272,7 +300,7 @@ public class GenerateService : IGenerateService
         );
     }
 
-    private void EnsureRouterContainsInsertPoint(string routerFilePath)
+    private static void EnsureRouterContainsInsertPoint(string routerFilePath)
     {
         if (!File.Exists(routerFilePath))
             throw new ValidationException($"Arquivo de rotas não encontrado em: {routerFilePath}");
@@ -287,7 +315,7 @@ public class GenerateService : IGenerateService
             );
     }
 
-    private string GetFileName(string fileType, string entityName, TemplateType templateType)
+    private static string GetFileName(string fileType, string entityName, TemplateType templateType)
     {
         return templateType switch
         {
@@ -313,7 +341,7 @@ public class GenerateService : IGenerateService
         };
     }
 
-    private string GetSelector(string clientProjectPath)
+    private static string GetSelector(string clientProjectPath)
     {
         var angularJsonPath = Path.Combine(clientProjectPath, "angular.json");
         var json = File.ReadAllText(angularJsonPath);
