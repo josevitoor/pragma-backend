@@ -1,3 +1,7 @@
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
 export interface {{ entity_name }}Type {
 {{- for column in info_table }}
   {{ column.column_name | string.slice(0, 1) | string.downcase }}{{ column.column_name | string.slice(1) }}: {{

@@ -5,7 +5,10 @@ using System;
 {{- end -}}
 {{ end }}
 namespace Domain.DTO.Response;
-
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
 public class {{ entity_name }}Get
 { 
 {{- for column in info_table }}

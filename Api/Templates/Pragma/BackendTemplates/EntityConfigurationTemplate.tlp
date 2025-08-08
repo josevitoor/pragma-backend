@@ -3,7 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Domain;
-
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
 public class {{ entity_name }}EntityConfiguration : IEntityTypeConfiguration<{{ entity_name }}>
 {
     public void Configure(EntityTypeBuilder<{{ entity_name }}> builder)

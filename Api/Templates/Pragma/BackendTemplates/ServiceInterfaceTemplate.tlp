@@ -11,7 +11,10 @@ using Domain.Filter;
 {{~ end ~}}
 
 namespace Services;
-
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
 public interface I{{ entity_name }}Service : IService<{{ entity_name }}>
 {
     public Task<{{ if is_server_side }}IPaginate<{{ entity_name }}>{{ else }}IEnumerable<{{ entity_name }}>{{ end }}> GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}{{ entity_name }}Filter filter{{ end }});

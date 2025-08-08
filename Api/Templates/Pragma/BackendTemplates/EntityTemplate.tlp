@@ -5,7 +5,10 @@ using System;
 {{- end -}}
 {{ end }}
 namespace Domain.Entities;
-
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
 public class {{ entity_name }}
 { 
 {{- for column in info_table }}

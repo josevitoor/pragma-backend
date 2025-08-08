@@ -7,7 +7,7 @@ using TCE.Base.Dapper;
 namespace Application.Configuration;
 /// <summary>
 /// setup geral para os contextos -> bancos utilizados na aplicação
-/// </summary>w
+/// </summary>
 public static class DapperDatabaseConfiguration
 {
 

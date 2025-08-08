@@ -4,6 +4,10 @@ import { {{ entity_name }}Service } from 'src/app/services/{{ kebab_case }}.serv
 import { BaseResourceListComponent } from 'tce-ng-lib';
 import { FormBuilder } from '@angular/forms';
 
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
 @Component({
   selector: '{{ prefix }}-{{ kebab_case }}-list',
   templateUrl: './{{ kebab_case }}-list.component.html'
@@ -16,11 +20,19 @@ export class {{ entity_name }}ListComponent extends BaseResourceListComponent<{{
     this.service = injector.get({{ entity_name }}Service);
     {{ if is_server_side }}this.enableServerSideOptions = true {{ end }}
 
+    {{~ if table_columns_filter_list.size > 0 ~}}
     this.resourceFilterForm = this.formBuilder.group({
       {{~ for filter in table_columns_filter_list ~}}
       {{ filter.column_name | string.slice(0, 1) | string.downcase }}{{ filter.column_name | string.slice(1) }}: [],
       {{~ end ~}}
     });
+    {{~ end ~}}
+
+    this.searchTermFields = {
+      {{~ for column in table_columns_list ~}}
+      {{ column.database_column | string.slice(0, 1) | string.downcase }}{{ column.database_column | string.slice(1) }}: true{{ if for.last == false }},{{ end }}
+      {{~ end ~}}
+    };
   }
 
   async ngOnInit(): Promise<void> {

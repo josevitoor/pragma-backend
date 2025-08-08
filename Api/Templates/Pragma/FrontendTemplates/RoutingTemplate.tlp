@@ -3,6 +3,10 @@ import { Routes, RouterModule } from '@angular/router';
 import { {{ entity_name }}ListComponent } from './{{ kebab_case }}-list/{{ kebab_case }}-list.component';
 import { {{ entity_name }}FormComponent } from './{{ kebab_case }}-form/{{ kebab_case }}-form.component';
 
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
 const routes: Routes = [
   {
     path: '',

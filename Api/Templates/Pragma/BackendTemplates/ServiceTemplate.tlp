@@ -13,7 +13,10 @@ using LinqKit;
 {{~ end ~}}
 
 namespace Services;
-
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
 public class {{ entity_name }}Service : BaseService<{{ entity_name }}>, I{{ entity_name }}Service
 {
     public {{ entity_name }}Service(IUnitOfWork uow) : base(uow)

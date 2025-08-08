@@ -4,6 +4,10 @@ import { {{ entity_name }}Type } from 'src/app/models/{{ entity_name }}Type';
 import { {{ entity_name }}Service } from 'src/app/services/{{ kebab_case }}.service';
 import { BaseResourceFormComponent } from 'tce-ng-lib';
 
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
 @Component({
   selector: '{{ prefix }}-{{ kebab_case }}-form',
   templateUrl: './{{ kebab_case }}-form.component.html'

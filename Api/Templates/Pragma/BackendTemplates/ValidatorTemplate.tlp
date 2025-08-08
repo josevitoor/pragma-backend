@@ -2,7 +2,10 @@ using Domain.Entities;
 using FluentValidation;
 
 namespace Services;
-
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
 public class {{ entity_name }}Validator : AbstractValidator<{{ entity_name }}>
 {
     public {{ entity_name }}Validator()
