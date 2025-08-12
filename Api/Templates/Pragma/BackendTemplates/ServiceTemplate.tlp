@@ -1,6 +1,11 @@
 using Domain.Entities;
+{{~ if has_tce_base ~}}
 using TCE.Base.Services;
 using TCE.Base.UnitOfWork;
+{{~ else ~}}
+using Infra.UnitOfWork;
+using Services._BaseService;
+{{~ end ~}}
 using System.Threading.Tasks;
 {{~ if is_server_side ~}}
 using TCE.Base.Repository._BaseRepository.Paging;

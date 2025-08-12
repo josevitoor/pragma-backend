@@ -25,20 +25,26 @@ namespace Application.Controllers;
 /// Controller para gerenciamento de {{ entity_name }}
 /// </summary>
 [ApiController]
+{{~ if has_tce_base ~}}
 [ApiVersion("1.0")]
-[Route("v{version:apiVersion}/[controller]")]
+{{~ end ~}}
+[Route("{{ if has_tce_base }}v{version:apiVersion}/{{ end }}[controller]")]
 [AuthorizeTCE]
 public class {{ entity_name }}Controller : ControllerBase
 {
+    {{~ if has_tce_base ~}}
     private readonly IMapper _mapper;
+    {{~ end ~}}
     private readonly I{{ entity_name }}Service _service;
 
     /// <summary>
     /// Construtor do Controller de {{ entity_name }}
     /// </summary>
-    public {{ entity_name }}Controller(IMapper mapper, I{{ entity_name }}Service service)
+    public {{ entity_name }}Controller({{ if has_tce_base }}IMapper mapper, {{ end }}I{{ entity_name }}Service service)
     {
+        {{~ if has_tce_base ~}}
         _mapper = mapper;
+        {{~ end ~}}
         _service = service;
     }
 
@@ -53,7 +59,7 @@ public class {{ entity_name }}Controller : ControllerBase
     public async Task<IActionResult> GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}[FromQuery] {{ entity_name }}Filter filter{{ end }})
     {
         {{ if is_server_side }}IPaginate<{{ entity_name }}>{{ else }}IEnumerable<{{ entity_name }}>{{ end }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s = await _service.GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}filter{{ end }});
-        {{ if is_server_side }}IPaginate<{{ entity_name }}Get>{{ else }}IEnumerable<{{ entity_name }}Get>{{ end }} result = _mapper.Map<{{ if is_server_side }}IPaginate<{{ entity_name }}Get>{{ else }}IEnumerable<{{ entity_name }}Get>{{ end }}>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s);
+        {{ if is_server_side }}IPaginate<{{ entity_name }}Get>{{ else }}IEnumerable<{{ entity_name }}Get>{{ end }} result = {{ if has_tce_base }}_mapper{{ else }}Mapper{{ end }}.Map<{{ if is_server_side }}IPaginate<{{ entity_name }}Get>{{ else }}IEnumerable<{{ entity_name }}Get>{{ end }}>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}s);
         {{ if is_server_side }}return Pagination.Page(result);{{ else }}return Ok(result);{{ end }}
     }
 
@@ -73,7 +79,7 @@ public class {{ entity_name }}Controller : ControllerBase
         if ({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} == null)
             return NotFound();
 
-        {{ entity_name }}Get result = _mapper.Map<{{ entity_name }}Get>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
+        {{ entity_name }}Get result = {{ if has_tce_base }}_mapper{{ else }}Mapper{{ end }}.Map<{{ entity_name }}Get>({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
         return Ok(result);
     }
 
@@ -89,7 +95,7 @@ public class {{ entity_name }}Controller : ControllerBase
     [ProducesResponseType(typeof({{ entity_name }}), 201)]
     public IActionResult Create([FromBody] {{ entity_name }}Post dto)
     {
-        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = _mapper.Map<{{ entity_name }}>(dto);
+        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = {{ if has_tce_base }}_mapper{{ else }}Mapper{{ end }}.Map<{{ entity_name }}>(dto);
         {{ entity_name }} result = _service.Add({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
         return StatusCode(201, result);
     }
@@ -111,7 +117,7 @@ public class {{ entity_name }}Controller : ControllerBase
         if ({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} == null)
             return NotFound();
 
-        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}Update = _mapper.Map(dto, {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
+        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}Update = {{ if has_tce_base }}_mapper{{ else }}Mapper{{ end }}.Map(dto, {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
         var result = _service.Update({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}Update);
         return Ok(result);
     }

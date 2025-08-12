@@ -166,7 +166,7 @@ public class GenerateService : IGenerateService
         var entityLabel = filter.EntityName.ToLabel();
         var prefix = GetSelector(filter.GenerateFrontendFilter.ProjectClientPath);
 
-        var output = RenderTemplate(templateContent, new { filter.EntityName, filter.IsServerSide, filter.GenerateFrontendFilter.TableColumnsList, tableColumnsFilterList, infoTable, kebabCase, entityLabel, prefix, primaryKeyColumn });
+        var output = RenderTemplate(templateContent, new { filter.EntityName, filter.IsServerSide, filter.HasTceBase, filter.GenerateFrontendFilter.TableColumnsList, tableColumnsFilterList, infoTable, kebabCase, entityLabel, prefix, primaryKeyColumn });
 
         string directoryPath = Path.Combine(projectPath, targetDirectory);
         if (!Directory.Exists(directoryPath))
