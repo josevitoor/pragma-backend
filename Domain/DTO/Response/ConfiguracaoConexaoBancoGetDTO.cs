@@ -4,6 +4,8 @@ namespace Domain.Entities;
 
 public class ConfiguracaoConexaoBancoResponse
 {
+    public int IdConfiguracaoConexaoBanco { get; set; }
+
     public string BaseDados { get; set; }
 
     public string Usuario { get; set; }

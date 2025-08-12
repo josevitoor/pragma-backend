@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Filter;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 using TceCore.ACL;
@@ -73,7 +74,7 @@ public class ConfiguracaoConexaoBancoController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> GetByIdAsync(int id)
     {
-        var configuracao = await _configuracaoConexaoBancoService.GetByIdAsync(predicate: x => x.IdConfiguracaoConexaoBanco == id);
+        var configuracao = await _configuracaoConexaoBancoService.GetByIdAsync(id);
         if (configuracao == null)
             return NotFound();
 
@@ -143,6 +144,22 @@ public class ConfiguracaoConexaoBancoController : ControllerBase
             return NotFound();
 
         _configuracaoConexaoBancoService.Delete(configuracao);
+
+        return Ok();
+    }
+
+    /// <summary>
+    /// Validar conexão do banco de dados
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <response code="200">Sucesso</response>
+    /// <response code="401">Não autorizado</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [HttpGet("validate-connection")]
+    [ProducesResponseType(typeof(IEnumerable<Information>), 200)]
+    public async Task<IActionResult> ValidateConnection([FromQuery] ConnectionFilter filter)
+    {
+        await _configuracaoConexaoBancoService.ValidateConnection(filter);
 
         return Ok();
     }
