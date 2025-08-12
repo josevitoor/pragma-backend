@@ -53,10 +53,20 @@ public class GenerateService : IGenerateService
             templateText: "services.AddTransient<I{{ entity_name }}Service, {{ entity_name }}Service>();"
         );
 
-        var contextsDirectory = Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Domain", "Contexts");
-
-        var contextFile = Directory.GetFiles(contextsDirectory, "*Context.cs")
+        string contextFile = "";
+        var contextsDomainDirectory = Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Domain", "Contexts");
+        var contextsInfraDirectory = Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Infra", "Contexts");
+        if (Directory.Exists(contextsDomainDirectory))
+        {
+            contextFile = Directory.GetFiles(contextsDomainDirectory, "*Context.cs")
             .FirstOrDefault();
+        }
+        else if (Directory.Exists(contextsInfraDirectory))
+        {
+            contextFile = Directory.GetFiles(contextsInfraDirectory, "*Context.cs")
+            .FirstOrDefault();
+        }
+        
 
         await ModifyFileWithTemplateAsync(
             filePath: contextFile,
@@ -99,7 +109,7 @@ public class GenerateService : IGenerateService
             "Api\\Controllers",
             "Domain\\Entities",
             "Domain\\Mapping",
-            "Domain\\Contexts",
+            "Contexts",
             "Services"
         };
 
@@ -277,11 +287,23 @@ public class GenerateService : IGenerateService
         if (File.Exists(fullPath) || Directory.Exists(fullPath))
             return;
 
-        if (fullPath.Contains("Domain\\Contexts"))
+        if (fullPath.Contains("Contexts"))
         {
-            var contextFile = Directory.GetFiles(fullPath, "*Context.cs").FirstOrDefault();
-            if (contextFile != null)
-                return;
+            var domainContextsPath = fullPath.Replace("Contexts", "Domain\\Contexts");
+            if (Directory.Exists(domainContextsPath))
+            {
+                var contextFile = Directory.GetFiles(domainContextsPath, "*Context.cs").FirstOrDefault();
+                if (contextFile != null)
+                    return;
+            }
+            
+            var infraContextPath = fullPath.Replace("Contexts", "Infra\\Contexts");
+            if (Directory.Exists(infraContextPath))
+            {
+                var contextFile = Directory.GetFiles(infraContextPath, "*Context.cs").FirstOrDefault();
+                if (contextFile != null)
+                    return;
+            }
 
             throw new ValidationException($"Estrutura inválida no caminho de destino API. Arquivo obrigatório não encontrado: {fullPath}.*Context.cs");
         }
