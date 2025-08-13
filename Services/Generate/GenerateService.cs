@@ -49,7 +49,7 @@ public class GenerateService : IGenerateService
         await ModifyFileWithTemplateAsync(
             filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Api\\Configuration\\DependencyInjectionConfig.cs"),
             entityName: generateFilter.EntityName,
-            insertAfter: "services.AddSingleton(configuration);",
+            insertAfterRegex: @"services\.AddSingleton(?:<IConfiguration>)?\(configuration\);",
             templateText: "services.AddTransient<I{{ entity_name }}Service, {{ entity_name }}Service>();"
         );
 
@@ -66,7 +66,6 @@ public class GenerateService : IGenerateService
             contextFile = Directory.GetFiles(contextsInfraDirectory, "*Context.cs")
             .FirstOrDefault();
         }
-
 
         await ModifyFileWithTemplateAsync(
             filePath: contextFile,
@@ -85,12 +84,39 @@ public class GenerateService : IGenerateService
         await GenerateFileAsync("FormHtml", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-form", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
         await GenerateFileAsync("FormTs", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-form", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
 
-        await ModifyFileWithTemplateAsync(
-            filePath: generateFilter.GenerateFrontendFilter.RouterPath,
-            entityName: generateFilter.EntityName,
-            insertBefore: "{ path: '404', component: PageNotFoundComponent },",
-            templateText: "{ path: '{{ kebab_case }}', loadChildren: () => import('src/app/modulos/{{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}/{{ kebab_case }}.module').then((a) => a.{{ entity_name }}Module) },"
-        );
+        string filePath = generateFilter.GenerateFrontendFilter.RouterPath;
+        string templateText =
+            "{ path: '{{ kebab_case }}', loadChildren: () => import('src/app/modulos/{{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}/{{ kebab_case }}.module').then((a) => a.{{ entity_name }}Module) },";
+
+        var content = await File.ReadAllTextAsync(filePath);
+
+        if (Regex.IsMatch(content, @"{ path:\s*['""]404['""]"))
+        {
+            await ModifyFileWithTemplateAsync(
+                filePath: filePath,
+                entityName: generateFilter.EntityName,
+                insertBeforeRegex: @"{ path:\s*['""]404['""]",
+                templateText: templateText
+            );
+        }
+        else if (Regex.IsMatch(content, @"{ path:\s*'\*\*'"))
+        {
+            await ModifyFileWithTemplateAsync(
+                filePath: filePath,
+                entityName: generateFilter.EntityName,
+                insertBeforeRegex: @"{ path:\s*'\*\*'",
+                templateText: templateText
+            );
+        }
+        else
+        {
+            await ModifyFileWithTemplateAsync(
+                filePath: filePath,
+                entityName: generateFilter.EntityName,
+                insertAfterRegex: @"children:\s*\[",
+                templateText: templateText
+            );
+        }
     }
 
     private async Task GenerateFileAsync(string fileType, GenerateFilter filter, string targetDirectory, string projectPath, TemplateType templateType)

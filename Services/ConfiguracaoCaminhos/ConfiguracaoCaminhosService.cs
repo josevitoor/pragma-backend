@@ -9,6 +9,7 @@ using System.IO;
 using Domain.Enum;
 using System.Linq;
 using CrossCutting.Util;
+using System.Text.RegularExpressions;
 
 namespace Services;
 
@@ -134,11 +135,13 @@ public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IC
 
         var content = File.ReadAllText(routerFilePath);
 
-        const string insertPoint = "{ path: '404', component: PageNotFoundComponent }";
+        var has404 = Regex.IsMatch(content, @"{ path:\s*['""]404['""]");
+        var hasWildcard = Regex.IsMatch(content, @"{ path:\s*['""]\*\*['""]");
+        var hasDashboardChildren = Regex.IsMatch(content, @"path:\s*'dashboard'.*children:\s*\[", RegexOptions.Singleline);
 
-        if (!content.Contains(insertPoint))
+        if (!has404 && !hasWildcard && !hasDashboardChildren)
             throw new ValidationException(
-                $"O arquivo de rotas '{routerFilePath}' não contém o ponto de inserção obrigatório."
+                $"O arquivo de rotas '{routerFilePath}' não segue o padrão esperado. Adicione um ponto de inserção válido (rota 404, wildcard '**' ou children dentro de 'dashboard')."
             );
     }
 }
