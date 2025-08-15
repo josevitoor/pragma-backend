@@ -152,9 +152,9 @@ public class ConfiguracaoCaminhosController : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("validate-structure")]
     [ProducesResponseType(200)]
-    public IActionResult ValidateStructure([FromQuery] string projectApiRootPath, [FromQuery] string projectClientRootPath, [FromQuery] int idEstruturaProjeto)
+    public async Task<IActionResult> ValidateStructure([FromQuery] string projectApiRootPath, [FromQuery] string projectClientRootPath, [FromQuery] int idEstruturaProjeto)
     {
-        _service.ValidateProjectStructure(projectApiRootPath, projectClientRootPath, idEstruturaProjeto);
+        await _service.ValidateProjectStructure(projectApiRootPath, projectClientRootPath, idEstruturaProjeto);
         return Ok();
     }
 }

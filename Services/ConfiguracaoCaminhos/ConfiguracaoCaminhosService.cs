@@ -45,11 +45,11 @@ public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IC
         return base.Update<ConfiguracaoCaminhosValidator>(configuracaoCaminhos);
     }
 
-    public async void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath, int idEstruturaProjeto)
+    public async Task ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath, int idEstruturaProjeto)
     {
         if (string.IsNullOrWhiteSpace(projectApiRootPath))
             throw new ValidationException("Caminho da API do projeto não pode ser vazia.");
-        if (string.IsNullOrWhiteSpace(projectApiRootPath))
+        if (string.IsNullOrWhiteSpace(projectClientRootPath))
             throw new ValidationException("Caminho do Cliente do projeto não pode ser vazio.");
 
         ConfiguracaoEstruturaProjeto estruturaProjeto = await _configEstruturaService.GetByIdAsync(idEstruturaProjeto);
@@ -98,7 +98,7 @@ public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IC
 
         string tipoProjeto = templateType switch
         {
-            TemplateType.Api => "API",
+            TemplateType.Api => "Api",
             TemplateType.Client => "Client",
             _ => "Desconhecido"
         };

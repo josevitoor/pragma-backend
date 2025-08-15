@@ -11,4 +11,5 @@ public interface IConfiguracaoEstruturaProjetoService : IService<ConfiguracaoEst
     public Task<ConfiguracaoEstruturaProjeto> GetByIdAsync(int id);
     public ConfiguracaoEstruturaProjeto Add(ConfiguracaoEstruturaProjeto configuracaoEstruturaProjeto);
     public ConfiguracaoEstruturaProjeto Update(ConfiguracaoEstruturaProjeto configuracaoEstruturaProjeto);
+    public Task DeleteAsync(ConfiguracaoEstruturaProjeto configuracaoEstruturaProjeto);
 }

@@ -10,6 +10,7 @@ using CrossCutting.Util;
 using System.Text.Json;
 using System;
 using LinqKit;
+using Domain.Entities;
 
 namespace Services;
 
@@ -18,104 +19,103 @@ public class GenerateService : IGenerateService
     private const string ApiTemplatesDirectory = "Templates\\Pragma\\BackendTemplates";
     private const string ClientTemplatesDirectory = "Templates\\Pragma\\FrontendTemplates";
     private readonly IInformationService _informationService;
-    public GenerateService(IInformationService informationService)
+    private readonly IConfiguracaoEstruturaProjetoService _configEstruturaService;
+    public GenerateService(IInformationService informationService, IConfiguracaoEstruturaProjetoService configEstruturaService)
     {
         _informationService = informationService;
+        _configEstruturaService = configEstruturaService;
     }
 
     public async Task GenerateCrudFiles(GenerateFilter generateFilter)
     {
-        // Geração de arquivos backend
-        await GenerateFileAsync("Controller", generateFilter, "Api\\Controllers", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-        await GenerateFileAsync("Entity", generateFilter, "Domain\\Entities", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-        await GenerateFileAsync("EntityConfiguration", generateFilter, "Domain\\Mapping", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-        await GenerateFileAsync("PostDTO", generateFilter, "Domain\\DTO\\Request", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-        await GenerateFileAsync("GetDTO", generateFilter, "Domain\\DTO\\Response", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-        await GenerateFileAsync("ServiceInterface", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-        await GenerateFileAsync("Service", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-        await GenerateFileAsync("Validator", generateFilter, $"Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-        await GenerateFileAsync("Mapper", generateFilter, $"Api\\AutoMapper", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-
-        if (generateFilter.TableColumnsFilter.Any())
-            await GenerateFileAsync("Filter", generateFilter, "Domain\\Filter", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-
-        await ModifyFileWithTemplateAsync(
-            filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Api\\AutoMapper\\ConfigureMap.cs"),
-            entityName: generateFilter.EntityName,
-            insertAfterRegex: @"cfg\.AddProfile<.*?>\s*\(\);",
-            templateText: "cfg.AddProfile<{{ entity_name }}Map>();"
-        );
-
-        await ModifyFileWithTemplateAsync(
-            filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Api\\Configuration\\DependencyInjectionConfig.cs"),
-            entityName: generateFilter.EntityName,
-            insertAfterRegex: @"services\.AddSingleton(?:<IConfiguration>)?\(configuration\);",
-            templateText: "services.AddTransient<I{{ entity_name }}Service, {{ entity_name }}Service>();"
-        );
-
-        string contextFile = "";
-        var contextsDomainDirectory = Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Domain", "Contexts");
-        var contextsInfraDirectory = Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, "Infra", "Contexts");
-        if (Directory.Exists(contextsDomainDirectory))
+        try
         {
-            contextFile = Directory.GetFiles(contextsDomainDirectory, "*Context.cs")
-            .FirstOrDefault();
-        }
-        else if (Directory.Exists(contextsInfraDirectory))
-        {
-            contextFile = Directory.GetFiles(contextsInfraDirectory, "*Context.cs")
-            .FirstOrDefault();
-        }
+            ConfiguracaoEstruturaProjeto estrutura = await _configEstruturaService.GetByIdAsync(predicate: x => x.IdConfiguracaoEstrutura == generateFilter.IdConfiguracaoEstrutura);
 
-        await ModifyFileWithTemplateAsync(
-            filePath: contextFile,
-            entityName: generateFilter.EntityName,
-            insertAfterRegex: @"modelBuilder\.ApplyConfiguration\(.*\);",
-            templateText: "modelBuilder.ApplyConfiguration(new {{ entity_name }}EntityConfiguration());"
-        );
+            // Geração de arquivos backend
+            await GenerateFileAsync("Controller", generateFilter, estrutura.ApiControllers, generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+            await GenerateFileAsync("Entity", generateFilter, estrutura.ApiEntities, generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+            await GenerateFileAsync("EntityConfiguration", generateFilter, estrutura.ApiMapping, generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+            await GenerateFileAsync("PostDTO", generateFilter, "Domain\\DTO\\Request", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+            await GenerateFileAsync("GetDTO", generateFilter, "Domain\\DTO\\Response", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+            await GenerateFileAsync("ServiceInterface", generateFilter, $"{estrutura.ApiServices}\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+            await GenerateFileAsync("Service", generateFilter, $"{estrutura.ApiServices}\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+            await GenerateFileAsync("Validator", generateFilter, $"{estrutura.ApiServices}\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
+            await GenerateFileAsync("Mapper", generateFilter, $"Api\\AutoMapper", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
 
-        // Geração de arquivos frontend
-        await GenerateFileAsync("Service", generateFilter, "src\\app\\services", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
-        await GenerateFileAsync("Model", generateFilter, "src\\app\\models", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
-        await GenerateFileAsync("Module", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
-        await GenerateFileAsync("Routing", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
-        await GenerateFileAsync("ListHtml", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-list", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
-        await GenerateFileAsync("ListTs", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-list", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
-        await GenerateFileAsync("FormHtml", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-form", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
-        await GenerateFileAsync("FormTs", generateFilter, $"src\\app\\modulos\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-form", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+            if (generateFilter.TableColumnsFilter.Any())
+                await GenerateFileAsync("Filter", generateFilter, "Domain\\Filter", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
 
-        string filePath = generateFilter.GenerateFrontendFilter.RouterPath;
-        string templateText =
-            "{ path: '{{ kebab_case }}', loadChildren: () => import('src/app/modulos/{{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}/{{ kebab_case }}.module').then((a) => a.{{ entity_name }}Module) },";
-
-        var content = await File.ReadAllTextAsync(filePath);
-
-        if (Regex.IsMatch(content, @"{ path:\s*['""]404['""]"))
-        {
             await ModifyFileWithTemplateAsync(
-                filePath: filePath,
+                filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, estrutura.ApiConfigureMap),
                 entityName: generateFilter.EntityName,
-                insertBeforeRegex: @"{ path:\s*['""]404['""]",
-                templateText: templateText
+                insertAfterRegex: @"cfg\.AddProfile<.*?>\s*\(\);",
+                templateText: "cfg.AddProfile<{{ entity_name }}Map>();"
             );
-        }
-        else if (Regex.IsMatch(content, @"{ path:\s*'\*\*'"))
-        {
+
             await ModifyFileWithTemplateAsync(
-                filePath: filePath,
+                filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, estrutura.ApiDependencyInjectionConfig),
                 entityName: generateFilter.EntityName,
-                insertBeforeRegex: @"{ path:\s*'\*\*'",
-                templateText: templateText
+                insertAfterRegex: @"services\.AddSingleton(?:<IConfiguration>)?\(configuration\);",
+                templateText: "services.AddTransient<I{{ entity_name }}Service, {{ entity_name }}Service>();"
             );
-        }
-        else
-        {
+
             await ModifyFileWithTemplateAsync(
-                filePath: filePath,
+                filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, estrutura.ApiContexts),
                 entityName: generateFilter.EntityName,
-                insertAfterRegex: @"children:\s*\[",
-                templateText: templateText
+                insertAfterRegex: @"modelBuilder\.ApplyConfiguration\(.*\);",
+                templateText: "modelBuilder.ApplyConfiguration(new {{ entity_name }}EntityConfiguration());"
             );
+
+            // Geração de arquivos frontend
+            await GenerateFileAsync("Service", generateFilter, estrutura.ClientServices, generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+            await GenerateFileAsync("Model", generateFilter, estrutura.ClientModels, generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+            await GenerateFileAsync("Module", generateFilter, $"{estrutura.ClientModulos}\\{generateFilter.EntityName.ToLowerFirst()}", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+            await GenerateFileAsync("Routing", generateFilter, $"{estrutura.ClientModulos}\\{generateFilter.EntityName.ToLowerFirst()}", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+            await GenerateFileAsync("ListHtml", generateFilter, $"{estrutura.ClientModulos}\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-list", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+            await GenerateFileAsync("ListTs", generateFilter, $"{estrutura.ClientModulos}\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-list", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+            await GenerateFileAsync("FormHtml", generateFilter, $"{estrutura.ClientModulos}\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-form", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+            await GenerateFileAsync("FormTs", generateFilter, $"{estrutura.ClientModulos}\\{generateFilter.EntityName.ToLowerFirst()}\\{generateFilter.EntityName.ToKebabCase()}-form", generateFilter.GenerateFrontendFilter.ProjectClientPath, TemplateType.Client);
+
+            var filePathRotas = Path.Combine(generateFilter.GenerateFrontendFilter.ProjectClientPath, estrutura.ClientArquivoRotas);
+            string templateText =
+                "{ path: '{{ kebab_case }}', loadChildren: () => import('src/app/modulos/{{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }}/{{ kebab_case }}.module').then((a) => a.{{ entity_name }}Module) },";
+
+
+
+            var content = await File.ReadAllTextAsync(filePathRotas);
+
+            if (Regex.IsMatch(content, @"{ path:\s*['""]404['""]"))
+            {
+                await ModifyFileWithTemplateAsync(
+                    filePath: filePathRotas,
+                    entityName: generateFilter.EntityName,
+                    insertBeforeRegex: @"{ path:\s*['""]404['""]",
+                    templateText: templateText
+                );
+            }
+            else if (Regex.IsMatch(content, @"{ path:\s*'\*\*'"))
+            {
+                await ModifyFileWithTemplateAsync(
+                    filePath: filePathRotas,
+                    entityName: generateFilter.EntityName,
+                    insertBeforeRegex: @"{ path:\s*'\*\*'",
+                    templateText: templateText
+                );
+            }
+            else
+            {
+                await ModifyFileWithTemplateAsync(
+                    filePath: filePathRotas,
+                    entityName: generateFilter.EntityName,
+                    insertAfterRegex: @"children:\s*\[",
+                    templateText: templateText
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new ValidationException("Error ao gerar os arquivos. " + ex);
         }
     }
 

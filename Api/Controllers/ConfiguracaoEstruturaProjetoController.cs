@@ -7,6 +7,8 @@ using Domain.DTO.Response;
 using Domain.DTO.Request;
 using AutoMapper;
 using TceCore.ACL;
+using System.Linq;
+using FluentValidation;
 
 namespace Application.Controllers;
 
@@ -23,7 +25,7 @@ public class ConfiguracaoEstruturaProjetoController : ControllerBase
     private readonly IConfiguracaoEstruturaProjetoService _service;
 
     /// <summary>
-    /// Construtor do Controller de ConfiguracaoEstruturaProjeto
+    /// Construtor do Controller de Configuração de Estrutura de Projeto
     /// </summary>
     public ConfiguracaoEstruturaProjetoController(IMapper mapper, IConfiguracaoEstruturaProjetoService service)
     {
@@ -32,7 +34,7 @@ public class ConfiguracaoEstruturaProjetoController : ControllerBase
     }
 
     /// <summary>
-    /// Buscar todos os registros de ConfiguracaoEstruturaProjeto
+    /// Buscar todos os registros de Configuração de Estrutura de Projeto
     /// </summary>
     /// <response code="200">Sucesso</response>
     /// <response code="401">Não autorizado</response>
@@ -47,7 +49,7 @@ public class ConfiguracaoEstruturaProjetoController : ControllerBase
     }
 
     /// <summary>
-    /// Buscar registro de ConfiguracaoEstruturaProjeto por ID
+    /// Buscar registro de Configuração de Estrutura de Projeto por ID
     /// </summary>
     /// <param name="id">ID do registro</param>
     /// <response code="200">Sucesso</response>
@@ -67,7 +69,7 @@ public class ConfiguracaoEstruturaProjetoController : ControllerBase
     }
 
     /// <summary>
-    /// Criar novo registro de ConfiguracaoEstruturaProjeto
+    /// Criar novo registro de Configuração de Estrutura de Projeto
     /// </summary>
     /// <param name="dto">Dados para criação</param>
     /// <response code="201">Criado com sucesso</response>
@@ -84,7 +86,7 @@ public class ConfiguracaoEstruturaProjetoController : ControllerBase
     }
 
     /// <summary>
-    /// Atualizar registro de ConfiguracaoEstruturaProjeto por ID
+    /// Atualizar registro de Configuração de Estrutura de Projeto por ID
     /// </summary>
     /// <param name="id">ID do registro</param>
     /// <param name="dto">Dados para atualização</param>
@@ -96,7 +98,7 @@ public class ConfiguracaoEstruturaProjetoController : ControllerBase
     [ProducesResponseType(typeof(ConfiguracaoEstruturaProjeto), 200)]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ConfiguracaoEstruturaProjetoPost dto)
     {
-       ConfiguracaoEstruturaProjeto configuracaoEstruturaProjeto = await _service.GetByIdAsync(id);
+        ConfiguracaoEstruturaProjeto configuracaoEstruturaProjeto = await _service.GetByIdAsync(id);
         if (configuracaoEstruturaProjeto == null)
             return NotFound();
 
@@ -106,7 +108,7 @@ public class ConfiguracaoEstruturaProjetoController : ControllerBase
     }
 
     /// <summary>
-    /// Excluir registro de ConfiguracaoEstruturaProjeto por ID
+    /// Excluir registro de Configuração de Estrutura de Projeto por ID
     /// </summary>
     /// <param name="id">ID do registro</param>
     /// <response code="204">Excluído com sucesso</response>
@@ -115,11 +117,18 @@ public class ConfiguracaoEstruturaProjetoController : ControllerBase
     /// <response code="500">Erro interno do servidor</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(204)]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+    public async Task<IActionResult> Delete([FromRoute] int id, [FromServices] IConfiguracaoCaminhosService configuracaoCaminhosService)
     {
         ConfiguracaoEstruturaProjeto configuracaoEstruturaProjeto = await _service.GetByIdAsync(id);
         if (configuracaoEstruturaProjeto == null)
             return NotFound();
+
+        var caminhos = await configuracaoCaminhosService.GetAllAsync(predicate: x => x.IdConfiguracaoEstrutura == configuracaoEstruturaProjeto.IdConfiguracaoEstrutura);
+
+        if (caminhos != null && caminhos.Count() > 0)
+        {
+            throw new ValidationException("Esta estrutura de projeto possui caminhos vinculados e não pode ser excluída.");
+        }
 
         _service.Delete(configuracaoEstruturaProjeto);
         return NoContent();
