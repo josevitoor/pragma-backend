@@ -1,4 +1,5 @@
 using System;
+using Domain.Entities;
 namespace Domain.DTO.Response;
 
 public class ConfiguracaoCaminhosResponse
@@ -9,7 +10,7 @@ public class ConfiguracaoCaminhosResponse
 
     public string CaminhoCliente { get; set; }
 
-    public string CaminhoArquivoRota { get; set; }
-
     public DateTime DataInclusao { get; set; }
+
+    public ConfiguracaoEstruturaProjeto ConfiguracaoEstruturaProjeto { get; set; }
 }

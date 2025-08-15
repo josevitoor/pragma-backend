@@ -7,16 +7,16 @@ using TCE.Base.Token;
 using FluentValidation;
 using System.IO;
 using Domain.Enum;
-using System.Linq;
 using CrossCutting.Util;
-using System.Text.RegularExpressions;
 
 namespace Services;
 
 public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IConfiguracaoCaminhosService
 {
-    public ConfiguracaoCaminhosService(IUnitOfWork uow) : base(uow)
+    private readonly IConfiguracaoEstruturaProjetoService _configEstruturaService;
+    public ConfiguracaoCaminhosService(IUnitOfWork uow, IConfiguracaoEstruturaProjetoService configEstruturaService) : base(uow)
     {
+        _configEstruturaService = configEstruturaService;
     }
 
     public async Task<IEnumerable<ConfiguracaoCaminhos>> GetAllByOperadorAsync()
@@ -44,33 +44,36 @@ public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IC
         return base.Update<ConfiguracaoCaminhosValidator>(configuracaoCaminhos);
     }
 
-    public void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath, string routerFilePath)
+    public async void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath, int idEstruturaProjeto)
     {
         if (string.IsNullOrWhiteSpace(projectApiRootPath))
             throw new ValidationException("Caminho da API do projeto não pode ser vazia.");
         if (string.IsNullOrWhiteSpace(projectApiRootPath))
             throw new ValidationException("Caminho do Cliente do projeto não pode ser vazio.");
-        if (string.IsNullOrWhiteSpace(routerFilePath))
-            throw new ValidationException("Caminho do arquivo de rotas não pode ser vazio.");
+
+        ConfiguracaoEstruturaProjeto estruturaProjeto = await _configEstruturaService.GetByIdAsync(idEstruturaProjeto);
+
+        if (estruturaProjeto == null)
+            throw new ValidationException("Configuração de estrutura do projeto não pode ser vazia.");
 
         var requiredApiPaths = new[]
         {
-            "Api\\Configuration\\DependencyInjectionConfig.cs",
-            "Api\\AutoMapper\\ConfigureMap.cs",
-            "Api\\Controllers",
-            "Domain\\Entities",
-            "Domain\\Mapping",
-            "Contexts",
-            "Services"
+            estruturaProjeto.ApiDependencyInjectionConfig,
+            estruturaProjeto.ApiConfigureMap,
+            estruturaProjeto.ApiControllers,
+            estruturaProjeto.ApiEntities,
+            estruturaProjeto.ApiMapping,
+            estruturaProjeto.ApiContexts,
+            estruturaProjeto.ApiServices,
         };
 
         var requiredClientPaths = new[]
         {
-            "src\\app\\app.module.ts",
-            "src\\app\\services",
-            "src\\app\\models",
-            "src\\app\\modulos",
-            "angular.json"
+            estruturaProjeto.ClientAppModule,
+            estruturaProjeto.ClientServices,
+            estruturaProjeto.ClientModels,
+            estruturaProjeto.ClientModulos,
+            estruturaProjeto.ClientArquivoRotas,
         };
 
         foreach (var relativePath in requiredApiPaths)
@@ -85,34 +88,12 @@ public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IC
             EnsurePathExists(fullPath, TemplateType.Client);
         }
 
-        EnsureRouterContainsInsertPoint(routerFilePath);
     }
 
     private static void EnsurePathExists(string fullPath, TemplateType templateType)
     {
         if (File.Exists(fullPath) || Directory.Exists(fullPath))
             return;
-
-        if (fullPath.Contains("Contexts"))
-        {
-            var domainContextsPath = fullPath.Replace("Contexts", "Domain\\Contexts");
-            if (Directory.Exists(domainContextsPath))
-            {
-                var contextFile = Directory.GetFiles(domainContextsPath, "*Context.cs").FirstOrDefault();
-                if (contextFile != null)
-                    return;
-            }
-
-            var infraContextPath = fullPath.Replace("Contexts", "Infra\\Contexts");
-            if (Directory.Exists(infraContextPath))
-            {
-                var contextFile = Directory.GetFiles(infraContextPath, "*Context.cs").FirstOrDefault();
-                if (contextFile != null)
-                    return;
-            }
-
-            throw new ValidationException($"Estrutura inválida no caminho de destino API. Arquivo obrigatório não encontrado: {fullPath}.*Context.cs");
-        }
 
         string tipoProjeto = templateType switch
         {
@@ -126,22 +107,5 @@ public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IC
         throw new ValidationException(
             $"Estrutura inválida no caminho de destino {tipoProjeto}. {tipoAlvo.Capitalize()} obrigatório não encontrado: {fullPath}"
         );
-    }
-
-    private static void EnsureRouterContainsInsertPoint(string routerFilePath)
-    {
-        if (!File.Exists(routerFilePath))
-            throw new ValidationException($"Arquivo de rotas não encontrado em: {routerFilePath}");
-
-        var content = File.ReadAllText(routerFilePath);
-
-        var has404 = Regex.IsMatch(content, @"{ path:\s*['""]404['""]");
-        var hasWildcard = Regex.IsMatch(content, @"{ path:\s*['""]\*\*['""]");
-        var hasDashboardChildren = Regex.IsMatch(content, @"path:\s*'dashboard'.*children:\s*\[", RegexOptions.Singleline);
-
-        if (!has404 && !hasWildcard && !hasDashboardChildren)
-            throw new ValidationException(
-                $"O arquivo de rotas '{routerFilePath}' não segue o padrão esperado. Adicione um ponto de inserção válido (rota 404, wildcard '**' ou children dentro de 'dashboard')."
-            );
     }
 }

@@ -1,3 +1,5 @@
+using Domain.Entities;
+
 namespace Domain.DTO.Request;
 
 public class ConfiguracaoCaminhosRequest
@@ -6,5 +8,5 @@ public class ConfiguracaoCaminhosRequest
 
     public string CaminhoCliente { get; set; }
 
-    public string CaminhoArquivoRota { get; set; }
+    public ConfiguracaoEstruturaProjeto ConfiguracaoEstruturaProjeto { get; set; }
 }

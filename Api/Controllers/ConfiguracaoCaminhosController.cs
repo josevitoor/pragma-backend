@@ -145,15 +145,15 @@ public class ConfiguracaoCaminhosController : ControllerBase
     /// </summary>
     /// <param name="projectApiRootPath"></param>
     /// <param name="projectClientRootPath"></param>
-    /// <param name="routerFilePath"></param>
+    /// <param name="idEstruturaProjeto"></param>
     /// <response code="200">Sucesso</response>
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("validate-structure")]
     [ProducesResponseType(200)]
-    public IActionResult ValidateStructure([FromQuery] string projectApiRootPath, [FromQuery] string projectClientRootPath, [FromQuery] string routerFilePath)
+    public IActionResult ValidateStructure([FromQuery] string projectApiRootPath, [FromQuery] string projectClientRootPath, [FromQuery] int idEstruturaProjeto)
     {
-        _service.ValidateProjectStructure(projectApiRootPath, projectClientRootPath, routerFilePath);
+        _service.ValidateProjectStructure(projectApiRootPath, projectClientRootPath, idEstruturaProjeto);
         return Ok();
     }
 }
