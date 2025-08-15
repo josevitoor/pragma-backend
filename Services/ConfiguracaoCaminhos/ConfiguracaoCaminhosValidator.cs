@@ -12,7 +12,7 @@ public class ConfiguracaoCaminhosValidator : AbstractValidator<ConfiguracaoCamin
 
         RuleFor(p => p.CaminhoCliente).NotEmpty().MaximumLength(500);
 
-        RuleFor(p => p.CaminhoArquivoRota).NotEmpty().MaximumLength(500);
+        RuleFor(p => p.IdConfiguracaoEstrutura).NotEmpty();
 
         RuleFor(p => p.DataInclusao).NotNull();
 

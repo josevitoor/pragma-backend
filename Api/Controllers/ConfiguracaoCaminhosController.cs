@@ -7,6 +7,7 @@ using Domain.DTO.Response;
 using Domain.DTO.Request;
 using AutoMapper;
 using TceCore.ACL;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Controllers;
 
@@ -41,7 +42,7 @@ public class ConfiguracaoCaminhosController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<ConfiguracaoCaminhosResponse>), 200)]
     public async Task<IActionResult> GetAllAsync()
     {
-        IEnumerable<ConfiguracaoCaminhos> configuracaoCaminhos = await _service.GetAllAsync();
+        IEnumerable<ConfiguracaoCaminhos> configuracaoCaminhos = await _service.GetAllAsync(include: x => x.Include(y => y.ConfiguracaoEstruturaProjeto));
         IEnumerable<ConfiguracaoCaminhosResponse> result = _mapper.Map<IEnumerable<ConfiguracaoCaminhosResponse>>(configuracaoCaminhos);
         return Ok(result);
     }
@@ -145,15 +146,15 @@ public class ConfiguracaoCaminhosController : ControllerBase
     /// </summary>
     /// <param name="projectApiRootPath"></param>
     /// <param name="projectClientRootPath"></param>
-    /// <param name="routerFilePath"></param>
+    /// <param name="idEstruturaProjeto"></param>
     /// <response code="200">Sucesso</response>
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpGet("validate-structure")]
     [ProducesResponseType(200)]
-    public IActionResult ValidateStructure([FromQuery] string projectApiRootPath, [FromQuery] string projectClientRootPath, [FromQuery] string routerFilePath)
+    public async Task<IActionResult> ValidateStructure([FromQuery] string projectApiRootPath, [FromQuery] string projectClientRootPath, [FromQuery] int idEstruturaProjeto)
     {
-        _service.ValidateProjectStructure(projectApiRootPath, projectClientRootPath, routerFilePath);
+        await _service.ValidateProjectStructure(projectApiRootPath, projectClientRootPath, idEstruturaProjeto);
         return Ok();
     }
 }

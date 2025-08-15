@@ -11,6 +11,7 @@ public class PragmaContext : AuditDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new InformationEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new ConfiguracaoEstruturaProjetoEntityConfiguration());
         modelBuilder.ApplyConfiguration(new TableConstraintEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ConstraintInfoEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ConfiguracaoConexaoBancoEntityConfiguration());

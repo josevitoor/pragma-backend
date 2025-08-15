@@ -11,5 +11,5 @@ public interface IConfiguracaoCaminhosService : IService<ConfiguracaoCaminhos>
     public Task<ConfiguracaoCaminhos> GetByIdAsync(int id);
     public ConfiguracaoCaminhos Add(ConfiguracaoCaminhos configuracaoCaminhos);
     public ConfiguracaoCaminhos Update(ConfiguracaoCaminhos configuracaoCaminhos);
-    public void ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath, string routerFilePath);
+    public Task ValidateProjectStructure(string projectApiRootPath, string projectClientRootPath, int idEstruturaProjeto);
 }

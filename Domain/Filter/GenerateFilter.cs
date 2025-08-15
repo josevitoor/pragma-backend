@@ -8,6 +8,7 @@ public class GenerateFilter
     public string EntityName { get; set; }
     public bool IsServerSide { get; set; }
     public bool HasTceBase { get; set; }
+    public int IdConfiguracaoEstrutura { get; set; }
     public ICollection<string> TableColumnsFilter { get; set; }
     public GenerateBackendFilter GenerateBackendFilter { get; set; }
     public GenerateFrontendFilter GenerateFrontendFilter { get; set; }

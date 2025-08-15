@@ -23,10 +23,10 @@ public class ConfiguracaoCaminhosEntityConfiguration : IEntityTypeConfiguration<
             .HasColumnType("nvarchar")
             .IsRequired().HasMaxLength(500);
 
-        builder.Property(e => e.CaminhoArquivoRota)
-            .HasColumnName("CaminhoArquivoRota")
-            .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+        builder.Property(e => e.IdConfiguracaoEstrutura)
+            .HasColumnName("IdConfiguracaoEstrutura")
+            .HasColumnType("int")
+            .IsRequired();
 
         builder.Property(e => e.DataInclusao)
             .HasColumnName("DataInclusao")
@@ -43,5 +43,10 @@ public class ConfiguracaoCaminhosEntityConfiguration : IEntityTypeConfiguration<
             .HasColumnType("int")
             .IsRequired();
 
+
+        builder.HasOne(e => e.ConfiguracaoEstruturaProjeto)
+            .WithMany(p => p.ConfiguracaoCaminhos)
+            .HasForeignKey(e => e.IdConfiguracaoEstrutura)
+            .IsRequired();
     }
 }
