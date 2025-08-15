@@ -7,6 +7,7 @@ using Domain.DTO.Response;
 using Domain.DTO.Request;
 using AutoMapper;
 using TceCore.ACL;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Controllers;
 
@@ -41,7 +42,7 @@ public class ConfiguracaoCaminhosController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<ConfiguracaoCaminhosResponse>), 200)]
     public async Task<IActionResult> GetAllAsync()
     {
-        IEnumerable<ConfiguracaoCaminhos> configuracaoCaminhos = await _service.GetAllAsync();
+        IEnumerable<ConfiguracaoCaminhos> configuracaoCaminhos = await _service.GetAllAsync(include: x => x.Include(y => y.ConfiguracaoEstruturaProjeto));
         IEnumerable<ConfiguracaoCaminhosResponse> result = _mapper.Map<IEnumerable<ConfiguracaoCaminhosResponse>>(configuracaoCaminhos);
         return Ok(result);
     }

@@ -10,6 +10,8 @@ public class ConfiguracaoCaminhosResponse
 
     public string CaminhoCliente { get; set; }
 
+    public int IdConfiguracaoEstrutura { get; set; }
+
     public DateTime DataInclusao { get; set; }
 
     public ConfiguracaoEstruturaProjeto ConfiguracaoEstruturaProjeto { get; set; }

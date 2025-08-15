@@ -8,6 +8,7 @@ using FluentValidation;
 using System.IO;
 using Domain.Enum;
 using CrossCutting.Util;
+using Microsoft.EntityFrameworkCore;
 
 namespace Services;
 
@@ -22,12 +23,12 @@ public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IC
     public async Task<IEnumerable<ConfiguracaoCaminhos>> GetAllByOperadorAsync()
     {
         var tokenInfo = new TokenInfo(_tokenInfo);
-        return await GetAllAsync(predicate: x => x.IdOperadorInclusao == int.Parse(tokenInfo.IdOperador));
+        return await GetAllAsync(predicate: x => x.IdOperadorInclusao == int.Parse(tokenInfo.IdOperador), include: x => x.Include(y => y.ConfiguracaoEstruturaProjeto));
     }
 
     public async Task<ConfiguracaoCaminhos> GetByIdAsync(int id)
     {
-        ConfiguracaoCaminhos configuracaoCaminhos = await base.GetByIdAsync(predicate: item => item.IdConfiguracaoCaminho == id);
+        ConfiguracaoCaminhos configuracaoCaminhos = await GetByIdAsync(predicate: item => item.IdConfiguracaoCaminho == id);
 
         return configuracaoCaminhos;
     }

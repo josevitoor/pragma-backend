@@ -1,5 +1,6 @@
 using System;
 namespace Domain.DTO.Request;
+
 public class ConfiguracaoEstruturaProjetoPost
 {
 
@@ -26,6 +27,8 @@ public class ConfiguracaoEstruturaProjetoPost
     public string ClientModels { get; set; }
 
     public string ClientModulos { get; set; }
+
+    public string ClientArquivoRotas { get; set; }
 
     public DateTime DataInclusao { get; set; }
 

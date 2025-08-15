@@ -29,6 +29,8 @@ public class ConfiguracaoEstruturaProjetoGet
 
     public string ClientModulos { get; set; }
 
+    public string ClientArquivoRotas { get; set; }
+
     public DateTime DataInclusao { get; set; }
 
     public int IdOperadorInclusao { get; set; }

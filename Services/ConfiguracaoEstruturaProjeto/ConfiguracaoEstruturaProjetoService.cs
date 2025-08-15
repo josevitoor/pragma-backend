@@ -3,6 +3,7 @@ using TCE.Base.Services;
 using TCE.Base.UnitOfWork;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using TCE.Base.Token;
 
 namespace Services;
 
@@ -26,6 +27,8 @@ public class ConfiguracaoEstruturaProjetoService : BaseService<ConfiguracaoEstru
 
     public ConfiguracaoEstruturaProjeto Add(ConfiguracaoEstruturaProjeto configuracaoEstruturaProjeto)
     {
+        var tokenInfo = new TokenInfo(_tokenInfo);
+        configuracaoEstruturaProjeto.IdOperadorInclusao = int.Parse(tokenInfo.IdOperador);
         return base.Add<ConfiguracaoEstruturaProjetoValidator>(configuracaoEstruturaProjeto);
     }
 

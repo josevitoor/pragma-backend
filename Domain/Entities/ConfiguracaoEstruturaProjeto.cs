@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 namespace Domain.Entities;
 
 public class ConfiguracaoEstruturaProjeto
@@ -36,4 +37,6 @@ public class ConfiguracaoEstruturaProjeto
     public int IdOperadorInclusao { get; set; }
 
     public int IdSessao { get; set; }
+
+    public ICollection<ConfiguracaoCaminhos> ConfiguracaoCaminhos { get; set; }
 }

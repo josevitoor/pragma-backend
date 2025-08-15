@@ -8,5 +8,7 @@ public class ConfiguracaoCaminhosRequest
 
     public string CaminhoCliente { get; set; }
 
+    public int IdConfiguracaoEstrutura { get; set; }
+
     public ConfiguracaoEstruturaProjeto ConfiguracaoEstruturaProjeto { get; set; }
 }
