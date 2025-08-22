@@ -2,7 +2,7 @@ using Domain.Entities;
 {{~ if has_tce_base ~}}
 using TCE.Base.Services;
 {{~ else ~}}
-using {{ import_service }}.Interfaces;
+using {{ import_interface_service }};
 {{~ end ~}}
 using System.Threading.Tasks;
 {{~ if is_server_side && has_tce_base ~}}

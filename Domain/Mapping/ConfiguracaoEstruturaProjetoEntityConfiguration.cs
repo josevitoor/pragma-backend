@@ -52,8 +52,13 @@ public class ConfiguracaoEstruturaProjetoEntityConfiguration : IEntityTypeConfig
             .HasColumnType("nvarchar")
             .IsRequired().HasMaxLength(100);
 
-        builder.Property(e => e.ApiImportBaseService)
-            .HasColumnName("ApiImportBaseService")
+        builder.Property(e => e.ApiImportInfraService)
+            .HasColumnName("ApiImportInfraService")
+            .HasColumnType("nvarchar")
+            .HasMaxLength(50);
+
+        builder.Property(e => e.ApiImportInfraIService)
+            .HasColumnName("ApiImportInfraIService")
             .HasColumnType("nvarchar")
             .HasMaxLength(50);
 
@@ -64,6 +69,11 @@ public class ConfiguracaoEstruturaProjetoEntityConfiguration : IEntityTypeConfig
 
         builder.Property(e => e.ApiImportPaginate)
             .HasColumnName("ApiImportPaginate")
+            .HasColumnType("nvarchar")
+            .HasMaxLength(50);
+
+        builder.Property(e => e.ApiImportPaginateConverter)
+            .HasColumnName("ApiImportPaginateConverter")
             .HasColumnType("nvarchar")
             .HasMaxLength(50);
 

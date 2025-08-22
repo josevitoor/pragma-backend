@@ -24,11 +24,15 @@ public class ConfiguracaoEstruturaProjeto
 
     public string ClientServices { get; set; }
 
-    public string ApiImportBaseService { get; set; }
+    public string ApiImportInfraService { get; set; }
+
+    public string ApiImportInfraIService { get; set; }
 
     public string ApiImportUOW { get; set; }
 
     public string ApiImportPaginate { get; set; }
+
+    public string ApiImportPaginateConverter { get; set; }
 
     public string ClientModels { get; set; }
 

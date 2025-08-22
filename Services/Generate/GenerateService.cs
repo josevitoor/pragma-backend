@@ -33,15 +33,15 @@ public class GenerateService : IGenerateService
             ConfiguracaoEstruturaProjeto estrutura = await _configEstruturaService.GetByIdAsync(predicate: x => x.IdConfiguracaoEstrutura == generateFilter.IdConfiguracaoEstrutura);
 
             // Geração de arquivos backend
-            await GenerateFileAsync("Controller", generateFilter, estrutura.ApiControllers, generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura.ApiImportBaseService, estrutura.ApiImportUOW, estrutura.ApiImportPaginate);
+            await GenerateFileAsync("Controller", generateFilter, estrutura.ApiControllers, generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura);
             await GenerateFileAsync("Entity", generateFilter, estrutura.ApiEntities, generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
             await GenerateFileAsync("EntityConfiguration", generateFilter, estrutura.ApiMapping, generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
             await GenerateFileAsync("PostDTO", generateFilter, "Domain\\DTO\\Request", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
             await GenerateFileAsync("GetDTO", generateFilter, "Domain\\DTO\\Response", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-            await GenerateFileAsync("ServiceInterface", generateFilter, $"{estrutura.ApiServices}\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura.ApiImportBaseService, estrutura.ApiImportUOW, estrutura.ApiImportPaginate);
-            await GenerateFileAsync("Service", generateFilter, $"{estrutura.ApiServices}\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura.ApiImportBaseService, estrutura.ApiImportUOW, estrutura.ApiImportPaginate);
+            await GenerateFileAsync("ServiceInterface", generateFilter, $"{estrutura.ApiServices}\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura);
+            await GenerateFileAsync("Service", generateFilter, $"{estrutura.ApiServices}\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura);
             await GenerateFileAsync("Validator", generateFilter, $"{estrutura.ApiServices}\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
-            await GenerateFileAsync("Mapper", generateFilter, $"Api\\AutoMapper", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura.ApiImportBaseService, estrutura.ApiImportUOW, estrutura.ApiImportPaginate);
+            await GenerateFileAsync("Mapper", generateFilter, $"Api\\AutoMapper", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura);
 
             if (generateFilter.TableColumnsFilter.Any())
                 await GenerateFileAsync("Filter", generateFilter, "Domain\\Filter", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
@@ -56,7 +56,7 @@ public class GenerateService : IGenerateService
             await ModifyFileWithTemplateAsync(
                 filePath: Path.Combine(generateFilter.GenerateBackendFilter.ProjectApiPath, estrutura.ApiDependencyInjectionConfig),
                 entityName: generateFilter.EntityName,
-                insertAfterRegex: @"services\.AddSingleton(?:<IConfiguration>)?\(configuration\);",
+                insertAfterRegex: @"services\.AddSingleton(?:<IConfiguration>)?\(([cC]onfiguration)\);",
                 templateText: "services.AddTransient<I{{ entity_name }}Service, {{ entity_name }}Service>();"
             );
 
@@ -121,7 +121,7 @@ public class GenerateService : IGenerateService
         }
     }
 
-    private async Task GenerateFileAsync(string fileType, GenerateFilter filter, string targetDirectory, string projectPath, TemplateType templateType, string importService = null, string importUOW = null, string importPaginate = null)
+    private async Task GenerateFileAsync(string fileType, GenerateFilter filter, string targetDirectory, string projectPath, TemplateType templateType, ConfiguracaoEstruturaProjeto estruturaProjeto = null)
     {
         string templateContent = await LoadTemplateContentAsync(fileType + "Template", templateType);
 
@@ -151,7 +151,24 @@ public class GenerateService : IGenerateService
         var prefix = GetSelector(filter.GenerateFrontendFilter.ProjectClientPath);
 
         var output = RenderTemplate(templateContent,
-            new { filter.EntityName, filter.IsServerSide, filter.HasTceBase, filter.GenerateFrontendFilter.TableColumnsList, tableColumnsFilterList, infoTable, kebabCase, entityLabel, prefix, primaryKeyColumn, importService, importUOW, importPaginate });
+            new
+            {
+                filter.EntityName,
+                filter.IsServerSide,
+                filter.HasTceBase,
+                filter.GenerateFrontendFilter.TableColumnsList,
+                tableColumnsFilterList,
+                infoTable,
+                kebabCase,
+                entityLabel,
+                prefix,
+                primaryKeyColumn,
+                importService = estruturaProjeto?.ApiImportInfraService,
+                importInterfaceService = estruturaProjeto?.ApiImportInfraIService,
+                importUOW = estruturaProjeto?.ApiImportUOW,
+                importPaginate = estruturaProjeto?.ApiImportPaginate,
+                importPagConverter = estruturaProjeto?.ApiImportPaginateConverter
+            });
 
         string directoryPath = Path.Combine(projectPath, targetDirectory);
         if (!Directory.Exists(directoryPath))
