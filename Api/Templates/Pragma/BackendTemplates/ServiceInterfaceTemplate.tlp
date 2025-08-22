@@ -2,11 +2,13 @@ using Domain.Entities;
 {{~ if has_tce_base ~}}
 using TCE.Base.Services;
 {{~ else ~}}
-using Services._BaseService.Interfaces;
+using {{ import_service }}.Interfaces;
 {{~ end ~}}
 using System.Threading.Tasks;
-{{~ if is_server_side ~}}
+{{~ if is_server_side && has_tce_base ~}}
 using TCE.Base.Repository._BaseRepository.Paging;
+{{~ else if is_server_side && !has_tce_base ~}}
+using {{ import_paginate }};
 {{~ else ~}}
 using System.Collections.Generic;
 {{~ end ~}}

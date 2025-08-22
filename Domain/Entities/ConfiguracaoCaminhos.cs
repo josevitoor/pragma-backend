@@ -15,7 +15,5 @@ public class ConfiguracaoCaminhos
 
     public int IdOperadorInclusao { get; set; }
 
-    public int IdSessao { get; set; }
-
     public ConfiguracaoEstruturaProjeto ConfiguracaoEstruturaProjeto { get; set; }
 }

@@ -19,6 +19,4 @@ public class ConfiguracaoConexaoBanco
     public DateTime DataInclusao { get; set; }
 
     public int IdOperadorInclusao { get; set; }
-
-    public int IdSessao { get; set; }
 }

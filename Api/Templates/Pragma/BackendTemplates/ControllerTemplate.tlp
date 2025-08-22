@@ -10,8 +10,12 @@ using TceCore.ACL;
 {{~ if table_columns_filter_list && table_columns_filter_list.size > 0 ~}}
 using Domain.Filter;
 {{~ end ~}}
-{{~ if is_server_side ~}}
+{{~ if is_server_side && has_tce_base ~}}
 using TCE.Base.Repository._BaseRepository.Paging;
+using Application.ApiPagination;
+{{~ end ~}}
+{{~ if is_server_side && !has_tce_base ~}}
+using {{ import_paginate }};
 using Application.ApiPagination;
 {{~ end ~}}
 
@@ -22,13 +26,10 @@ namespace Application.Controllers;
  */
  
 /// <summary>
-/// Controller para gerenciamento de {{ entity_name }}
+/// Controller para gerenciamento de {{ entity_label }}
 /// </summary>
 [ApiController]
-{{~ if has_tce_base ~}}
-[ApiVersion("1.0")]
-{{~ end ~}}
-[Route("{{ if has_tce_base }}v{version:apiVersion}/{{ end }}[controller]")]
+[Route("[controller]")]
 [AuthorizeTCE]
 public class {{ entity_name }}Controller : ControllerBase
 {
@@ -38,7 +39,7 @@ public class {{ entity_name }}Controller : ControllerBase
     private readonly I{{ entity_name }}Service _service;
 
     /// <summary>
-    /// Construtor do Controller de {{ entity_name }}
+    /// Construtor do Controller de {{ entity_label }}
     /// </summary>
     public {{ entity_name }}Controller({{ if has_tce_base }}IMapper mapper, {{ end }}I{{ entity_name }}Service service)
     {
@@ -49,7 +50,7 @@ public class {{ entity_name }}Controller : ControllerBase
     }
 
     /// <summary>
-    /// Buscar todos os registros de {{ entity_name }}
+    /// Buscar todos os registros de {{ entity_label }}
     /// </summary>
     /// <response code="200">Sucesso</response>
     /// <response code="401">Não autorizado</response>
@@ -64,7 +65,7 @@ public class {{ entity_name }}Controller : ControllerBase
     }
 
     /// <summary>
-    /// Buscar registro de {{ entity_name }} por ID
+    /// Buscar registro de {{ entity_label }} por ID
     /// </summary>
     /// <param name="id">ID do registro</param>
     /// <response code="200">Sucesso</response>
@@ -84,7 +85,7 @@ public class {{ entity_name }}Controller : ControllerBase
     }
 
     /// <summary>
-    /// Criar novo registro de {{ entity_name }}
+    /// Criar novo registro de {{ entity_label }}
     /// </summary>
     /// <param name="dto">Dados para criação</param>
     /// <response code="201">Criado com sucesso</response>
@@ -101,7 +102,7 @@ public class {{ entity_name }}Controller : ControllerBase
     }
 
     /// <summary>
-    /// Atualizar registro de {{ entity_name }} por ID
+    /// Atualizar registro de {{ entity_label }} por ID
     /// </summary>
     /// <param name="id">ID do registro</param>
     /// <param name="dto">Dados para atualização</param>
@@ -123,7 +124,7 @@ public class {{ entity_name }}Controller : ControllerBase
     }
 
     /// <summary>
-    /// Excluir registro de {{ entity_name }} por ID
+    /// Excluir registro de {{ entity_label }} por ID
     /// </summary>
     /// <param name="id">ID do registro</param>
     /// <response code="204">Excluído com sucesso</response>

@@ -70,7 +70,6 @@ public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IC
 
         var requiredClientPaths = new[]
         {
-            estruturaProjeto.ClientAppModule,
             estruturaProjeto.ClientServices,
             estruturaProjeto.ClientModels,
             estruturaProjeto.ClientModulos,

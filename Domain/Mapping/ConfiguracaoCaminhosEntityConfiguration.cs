@@ -38,12 +38,6 @@ public class ConfiguracaoCaminhosEntityConfiguration : IEntityTypeConfiguration<
             .HasColumnType("int")
             .IsRequired();
 
-        builder.Property(e => e.IdSessao)
-            .HasColumnName("IdSessao")
-            .HasColumnType("int")
-            .IsRequired();
-
-
         builder.HasOne(e => e.ConfiguracaoEstruturaProjeto)
             .WithMany(p => p.ConfiguracaoCaminhos)
             .HasForeignKey(e => e.IdConfiguracaoEstrutura)

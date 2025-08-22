@@ -9,7 +9,7 @@ public class ConfiguracaoConexaoBancoValidator : AbstractValidator<ConfiguracaoC
     {
         RuleFor(p => p.BaseDados)
             .NotEmpty()
-            .MaximumLength(100);
+            .MaximumLength(50);
 
         RuleFor(p => p.Usuario)
             .NotEmpty()
@@ -21,7 +21,7 @@ public class ConfiguracaoConexaoBancoValidator : AbstractValidator<ConfiguracaoC
 
         RuleFor(p => p.Servidor)
             .NotEmpty()
-            .MaximumLength(200);
+            .MaximumLength(50);
 
         RuleFor(p => p.Porta)
             .NotNull()
@@ -31,9 +31,6 @@ public class ConfiguracaoConexaoBancoValidator : AbstractValidator<ConfiguracaoC
             .NotNull();
 
         RuleFor(p => p.IdOperadorInclusao)
-            .NotNull();
-
-        RuleFor(p => p.IdSessao)
             .NotNull();
     }
 }

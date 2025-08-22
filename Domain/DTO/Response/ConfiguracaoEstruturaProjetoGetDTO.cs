@@ -21,7 +21,11 @@ public class ConfiguracaoEstruturaProjetoGet
 
     public string ApiServices { get; set; }
 
-    public string ClientAppModule { get; set; }
+    public string ApiImportBaseService { get; set; }
+
+    public string ApiImportUOW { get; set; }
+
+    public string ApiImportPaginate { get; set; }
 
     public string ClientServices { get; set; }
 
@@ -34,6 +38,4 @@ public class ConfiguracaoEstruturaProjetoGet
     public DateTime DataInclusao { get; set; }
 
     public int IdOperadorInclusao { get; set; }
-
-    public int IdSessao { get; set; }
 }

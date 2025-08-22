@@ -15,22 +15,22 @@ public class ConfiguracaoEstruturaProjetoEntityConfiguration : IEntityTypeConfig
         builder.Property(e => e.NomeEstrutura)
             .HasColumnName("NomeEstrutura")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(100);
+            .IsRequired().HasMaxLength(50);
 
         builder.Property(e => e.ApiDependencyInjectionConfig)
             .HasColumnName("ApiDependencyInjectionConfig")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+            .IsRequired().HasMaxLength(100);
 
         builder.Property(e => e.ApiConfigureMap)
             .HasColumnName("ApiConfigureMap")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+            .IsRequired().HasMaxLength(100);
 
         builder.Property(e => e.ApiControllers)
             .HasColumnName("ApiControllers")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+            .IsRequired().HasMaxLength(100);
 
         builder.Property(e => e.ApiEntities)
             .HasColumnName("ApiEntities")
@@ -40,32 +40,42 @@ public class ConfiguracaoEstruturaProjetoEntityConfiguration : IEntityTypeConfig
         builder.Property(e => e.ApiMapping)
             .HasColumnName("ApiMapping")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+            .IsRequired().HasMaxLength(100);
 
         builder.Property(e => e.ApiContexts)
             .HasColumnName("ApiContexts")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+            .IsRequired().HasMaxLength(100);
 
         builder.Property(e => e.ApiServices)
             .HasColumnName("ApiServices")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+            .IsRequired().HasMaxLength(100);
 
-        builder.Property(e => e.ClientAppModule)
-            .HasColumnName("ClientAppModule")
+        builder.Property(e => e.ApiImportBaseService)
+            .HasColumnName("ApiImportBaseService")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+            .HasMaxLength(50);
+
+        builder.Property(e => e.ApiImportUOW)
+            .HasColumnName("ApiImportUOW")
+            .HasColumnType("nvarchar")
+            .HasMaxLength(50);
+
+        builder.Property(e => e.ApiImportPaginate)
+            .HasColumnName("ApiImportPaginate")
+            .HasColumnType("nvarchar")
+            .HasMaxLength(50);
 
         builder.Property(e => e.ClientServices)
             .HasColumnName("ClientServices")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+            .IsRequired().HasMaxLength(100);
 
         builder.Property(e => e.ClientModels)
             .HasColumnName("ClientModels")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+            .IsRequired().HasMaxLength(100);
 
         builder.Property(e => e.ClientModulos)
             .HasColumnName("ClientModulos")
@@ -75,7 +85,7 @@ public class ConfiguracaoEstruturaProjetoEntityConfiguration : IEntityTypeConfig
         builder.Property(e => e.ClientArquivoRotas)
             .HasColumnName("ClientArquivoRotas")
             .HasColumnType("nvarchar")
-            .IsRequired().HasMaxLength(500);
+            .IsRequired().HasMaxLength(100);
 
         builder.Property(e => e.DataInclusao)
             .HasColumnName("DataInclusao")
@@ -86,11 +96,5 @@ public class ConfiguracaoEstruturaProjetoEntityConfiguration : IEntityTypeConfig
             .HasColumnName("IdOperadorInclusao")
             .HasColumnType("int")
             .IsRequired();
-
-        builder.Property(e => e.IdSessao)
-            .HasColumnName("IdSessao")
-            .HasColumnType("int")
-            .IsRequired();
-
     }
 }

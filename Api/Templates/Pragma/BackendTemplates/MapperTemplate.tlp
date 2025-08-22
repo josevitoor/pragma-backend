@@ -2,9 +2,12 @@ using AutoMapper;
 using Domain.DTO.Request;
 using Domain.DTO.Response;
 using Domain.Entities;
-{{~ if is_server_side ~}}
+{{~ if is_server_side && has_tce_base ~}}
 using TCE.Base;
 using TCE.Base.Repository._BaseRepository.Paging;
+{{~ end ~}}
+{{~ if is_server_side && !has_tce_base ~}}
+using {{ import_paginate }};
 {{~ end ~}}
 
 namespace Application.AutoMapper;
@@ -14,12 +17,12 @@ namespace Application.AutoMapper;
  */
 
 /// <summary>
-/// Classe para o mapeamento de {{ entity_name }}
+/// Classe para o mapeamento de {{ entity_label }}
 /// </summary>
 public class {{ entity_name }}Map : Profile
 {
     /// <summary>
-    /// Construtor do mapeamento de {{ entity_name }}
+    /// Construtor do mapeamento de {{ entity_label }}
     /// </summary>
     public {{ entity_name }}Map()
     {

@@ -3,12 +3,14 @@ using Domain.Entities;
 using TCE.Base.Services;
 using TCE.Base.UnitOfWork;
 {{~ else ~}}
-using Infra.UnitOfWork;
-using Services._BaseService;
+using {{ import_uow }};
+using {{ import_service }};
 {{~ end ~}}
 using System.Threading.Tasks;
-{{~ if is_server_side ~}}
+{{~ if is_server_side && has_tce_base ~}}
 using TCE.Base.Repository._BaseRepository.Paging;
+{{~ else if is_server_side && !has_tce_base ~}}
+using {{ import_paginate }};
 {{~ else ~}}
 using System.Collections.Generic;
 {{~ end ~}}
