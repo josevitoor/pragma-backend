@@ -35,6 +35,11 @@ public class ConfiguracaoEstruturaProjetoService : BaseService<ConfiguracaoEstru
 
     public ConfiguracaoEstruturaProjeto Update(ConfiguracaoEstruturaProjeto configuracaoEstruturaProjeto)
     {
+        var tokenInfo = new TokenInfo(_tokenInfo);
+        if (configuracaoEstruturaProjeto.IdOperadorInclusao != int.Parse(tokenInfo.IdOperador))
+        {
+            throw new ValidationException("Somente o operador responsável pela inclusão desta configuração pode modifica-la");
+        }
         return base.Update<ConfiguracaoEstruturaProjetoValidator>(configuracaoEstruturaProjeto);
     }
 
