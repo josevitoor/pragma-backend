@@ -117,7 +117,7 @@ public class GenerateService : IGenerateService
         }
         catch (Exception ex)
         {
-            throw new ValidationException("Error ao gerar os arquivos. " + ex);
+            throw new ValidationException("Error ao gerar os arquivos. Tente novamente mais tarde");
         }
     }
 
@@ -172,7 +172,7 @@ public class GenerateService : IGenerateService
                                                    string templateText = null)
     {
         if (!File.Exists(filePath))
-            throw new ValidationException($"Arquivo não encontrado: {filePath}");
+            throw new ValidationException($"Error ao gerar os arquivos. Arquivo não encontrado: {filePath}");
 
         string fileContent = await File.ReadAllTextAsync(filePath);
 
@@ -190,13 +190,13 @@ public class GenerateService : IGenerateService
         {
             TemplateType.Api => ApiTemplatesDirectory,
             TemplateType.Client => ClientTemplatesDirectory,
-            _ => throw new ValidationException("Tipo de template inválido")
+            _ => throw new ValidationException("Error ao gerar os arquivos. Tipo de template inválido")
         };
 
         string templatePath = Path.Combine(Directory.GetCurrentDirectory(), baseTemplateDirectory, templateName + ".tlp");
 
         if (!File.Exists(templatePath))
-            throw new ValidationException($"Template não encontrado: {templatePath}");
+            throw new ValidationException($"Error ao gerar os arquivos. Template não encontrado: {templatePath}");
 
         return await File.ReadAllTextAsync(templatePath);
     }
@@ -217,7 +217,7 @@ public class GenerateService : IGenerateService
                 string indentation = GetIndentationAt(content, match.Index);
                 return content.Insert(match.Index + match.Length, $"{Environment.NewLine}{indentation}{renderedLine}");
             }
-            throw new ValidationException($"Regex não encontrou ponto de inserção: {insertAfterRegex}");
+            throw new ValidationException($"Error ao gerar os arquivos. Regex não encontrou ponto de inserção: {insertAfterRegex}");
         }
 
         if (!string.IsNullOrEmpty(insertBeforeRegex))
@@ -228,7 +228,7 @@ public class GenerateService : IGenerateService
                 string indentation = GetIndentationAt(content, match.Index);
                 return content.Insert(match.Index, $"{renderedLine}{Environment.NewLine}{indentation}");
             }
-            throw new ValidationException($"Regex não encontrou ponto de inserção: {insertBeforeRegex}");
+            throw new ValidationException($"Error ao gerar os arquivos. Regex não encontrou ponto de inserção: {insertBeforeRegex}");
         }
 
         if (!string.IsNullOrEmpty(insertAfter))
@@ -251,7 +251,7 @@ public class GenerateService : IGenerateService
             }
         }
 
-        throw new ValidationException("É necessário definir um ponto de inserção.");
+        throw new ValidationException("Error ao gerar os arquivos. É necessário definir um ponto de inserção.");
     }
 
     private static string GetIndentationAt(string content, int index)
@@ -289,7 +289,7 @@ public class GenerateService : IGenerateService
                 "FormTs" => $"{entityName.ToKebabCase()}-form.component.ts",
                 _ => $"{entityName.ToKebabCase()}.{fileType.ToLower()}.ts"
             },
-            _ => throw new ValidationException("Tipo de template não suportado.")
+            _ => throw new ValidationException("Error ao gerar os arquivos. Tipo de template não suportado.")
         };
     }
 
