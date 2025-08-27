@@ -88,17 +88,17 @@ public class {{ entity_name }}Controller : ControllerBase
     /// Criar novo registro de {{ entity_label }}
     /// </summary>
     /// <param name="dto">Dados para criação</param>
-    /// <response code="201">Criado com sucesso</response>
+    /// <response code="200">Criado com sucesso</response>
     /// <response code="400">Dados inválidos</response>
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpPost]
-    [ProducesResponseType(typeof({{ entity_name }}), 201)]
+    [ProducesResponseType(typeof({{ entity_name }}), 200)]
     public IActionResult Create([FromBody] {{ entity_name }}Post dto)
     {
         {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = {{ if has_tce_base }}_mapper{{ else }}Mapper{{ end }}.Map<{{ entity_name }}>(dto);
         {{ entity_name }} result = _service.Add({{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }});
-        return StatusCode(201, result);
+        return Ok(result);
     }
 
     /// <summary>
@@ -108,7 +108,7 @@ public class {{ entity_name }}Controller : ControllerBase
     /// <param name="dto">Dados para atualização</param>
     /// <response code="200">Atualizado com sucesso</response>
     /// <response code="401">Não autorizado</response>
-    /// <response code="404">Registro não encontrado</response>
+    /// <response code="404">Não encontrado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpPut("{id}")]
     [ProducesResponseType(typeof({{ entity_name }}), 200)]
@@ -127,9 +127,9 @@ public class {{ entity_name }}Controller : ControllerBase
     /// Excluir registro de {{ entity_label }} por ID
     /// </summary>
     /// <param name="id">ID do registro</param>
-    /// <response code="204">Excluído com sucesso</response>
+    /// <response code="204">Sem conteúdo - Excluído com sucesso</response>
     /// <response code="401">Não autorizado</response>
-    /// <response code="404">Registro não encontrado</response>
+    /// <response code="404">Não encontrado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(204)]

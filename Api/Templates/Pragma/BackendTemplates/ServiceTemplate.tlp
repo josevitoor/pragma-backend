@@ -75,7 +75,7 @@ public class {{ entity_name }}Service : BaseService<{{ entity_name }}>, I{{ enti
 
     public async Task<{{ entity_name }}> GetByIdAsync(int id)
     {
-        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = await base.GetByIdAsync(predicate: item => item.{{ info_table[0].column_name }} == id);
+        {{ entity_name }} {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }} = await base.GetByIdAsync(predicate: item => item.{{ primary_key_column }} == id);
 
         return {{ entity_name | string.slice(0, 1) | string.downcase }}{{ entity_name | string.slice(1) }};
     }
