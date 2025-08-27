@@ -7,7 +7,6 @@ public class ConfiguracaoEstruturaProjetoValidator : AbstractValidator<Configura
 {
     public ConfiguracaoEstruturaProjetoValidator()
     {
-
         RuleFor(p => p.NomeEstrutura).NotEmpty().MaximumLength(50);
 
         RuleFor(p => p.ApiDependencyInjectionConfig).NotEmpty().MaximumLength(100);
@@ -24,11 +23,15 @@ public class ConfiguracaoEstruturaProjetoValidator : AbstractValidator<Configura
 
         RuleFor(p => p.ApiServices).NotEmpty().MaximumLength(100);
 
-        RuleFor(p => p.ApiImportBaseService).MaximumLength(50);
+        RuleFor(p => p.ApiImportInfraService).MaximumLength(50);
+
+        RuleFor(p => p.ApiImportInfraIService).MaximumLength(50);
 
         RuleFor(p => p.ApiImportUOW).MaximumLength(50);
 
         RuleFor(p => p.ApiImportPaginate).MaximumLength(50);
+
+        RuleFor(p => p.ApiImportPaginateConverter).MaximumLength(50);
 
         RuleFor(p => p.ClientServices).NotEmpty().MaximumLength(100);
 
@@ -39,6 +42,5 @@ public class ConfiguracaoEstruturaProjetoValidator : AbstractValidator<Configura
         RuleFor(p => p.DataInclusao).NotNull();
 
         RuleFor(p => p.IdOperadorInclusao).NotNull();
-
     }
 }
