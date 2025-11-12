@@ -29,7 +29,12 @@ namespace Application.Controllers;
 /// Controller para gerenciamento de {{ entity_label }}
 /// </summary>
 [ApiController]
+{{~ if has_api_version ~}}
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/[controller]")]
+{{~ else ~}}
 [Route("[controller]")]
+{{~ end ~}}
 [AuthorizeTCE]
 public class {{ entity_name }}Controller : ControllerBase
 {

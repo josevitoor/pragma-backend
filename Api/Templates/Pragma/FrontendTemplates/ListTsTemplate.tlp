@@ -3,6 +3,7 @@ import { {{ entity_name }}Type } from 'src/app/models/{{ entity_name }}Type';
 import { {{ entity_name }}Service } from 'src/app/services/{{ kebab_case }}.service';
 import { BaseResourceListComponent } from 'tce-ng-lib';
 import { FormBuilder } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 /* 
  * Arquivo gerado automaticamente pelo PRAGMA.
@@ -37,5 +38,21 @@ export class {{ entity_name }}ListComponent extends BaseResourceListComponent<{{
 
   async ngOnInit(): Promise<void> {
     await super.ngOnInit();
+  }
+
+  async deleteResource(id: number): Promise<void> {
+    const result = await Swal.fire({
+      title: 'Excluir',
+      text: 'Tem certeza que deseja excluir este item?',
+      showCancelButton: true,
+      confirmButtonText: 'Sim',
+      cancelButtonText: 'Não',
+      cancelButtonColor: '#d33',
+    });
+
+    if (!result.isConfirmed) return;
+    
+    await this.baseService.delete(id); 
+    this.allResources = this.resources.filter(item => item.{{ primary_key_column | string.slice(0, 1) | string.downcase }}{{ primary_key_column | string.slice(1) }} !== id);
   }
 }

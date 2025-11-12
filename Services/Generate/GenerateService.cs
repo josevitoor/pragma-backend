@@ -156,6 +156,7 @@ public class GenerateService : IGenerateService
                 filter.EntityName,
                 filter.IsServerSide,
                 filter.HasTceBase,
+                filter.HasApiVersion,
                 filter.GenerateFrontendFilter.TableColumnsList,
                 tableColumnsFilterList,
                 infoTable,
