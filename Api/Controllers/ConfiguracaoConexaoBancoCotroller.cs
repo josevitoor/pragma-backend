@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using Domain.DTO.Request;
+using Domain.DTO.Response;
 using Domain.Entities;
 using Domain.Filter;
 using Microsoft.AspNetCore.Mvc;

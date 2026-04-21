@@ -35,7 +35,7 @@ namespace Application.Controllers;
 {{~ else ~}}
 [Route("[controller]")]
 {{~ end ~}}
-[AuthorizeTCE]
+[AuthorizeTCE(2)]
 public class {{ entity_name }}Controller : ControllerBase
 {
     {{~ if has_tce_base ~}}

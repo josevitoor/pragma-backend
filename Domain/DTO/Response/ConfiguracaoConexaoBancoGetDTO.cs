@@ -1,7 +1,6 @@
 using System;
 
-namespace Domain.Entities;
-
+namespace Domain.DTO.Response;
 public class ConfiguracaoConexaoBancoResponse
 {
     public int IdConfiguracaoConexaoBanco { get; set; }

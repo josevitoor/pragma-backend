@@ -11,6 +11,9 @@ using System.Text.Json;
 using System;
 using LinqKit;
 using Domain.Entities;
+using Domain.DTO.Request;
+using System.Text;
+using System.Collections.Generic;
 
 namespace Services;
 
@@ -324,5 +327,74 @@ public class GenerateService : IGenerateService
         var prefix = firstProject.Value.GetProperty("prefix").GetString();
 
         return prefix;
+    }
+
+    public string GenerateSql(GenerateSqlRequest request)
+    {
+        var sb = new StringBuilder();
+
+        foreach (var table in request.Tables)
+        {
+            sb.AppendLine($"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{table.Key}')");
+            sb.AppendLine("BEGIN");
+            sb.AppendLine($"  CREATE TABLE {table.Key} (");
+
+            var pkColumns = table.Columns
+                .Where(c => c.Pk)
+                .Select(c => c.Name)
+                .ToList();
+
+            var columnLines = new List<string>();
+
+            foreach (var col in table.Columns)
+            {
+                var line = $"    {col.Name} {col.Type}";
+
+                if (col.Nn || col.Pk)
+                    line += " NOT NULL";
+                else
+                    line += " NULL";
+
+                if (col.Ai)
+                    line += " IDENTITY(1,1)";
+
+                if (col.Uq)
+                    line += " UNIQUE";
+
+                columnLines.Add(line);
+            }
+
+            var allLines = new List<string>();
+            allLines.AddRange(columnLines);
+
+            if (pkColumns.Any())
+            {
+                allLines.Add($"    CONSTRAINT PK_{table.Key} PRIMARY KEY ({string.Join(", ", pkColumns)})");
+            }
+
+            sb.AppendLine(string.Join(",\n", allLines));
+
+            sb.AppendLine("  )");
+            sb.AppendLine("END;");
+            sb.AppendLine();
+        }
+
+        foreach (var link in request.Links)
+        {
+            var constraintName = $"FK_{link.From}_{link.To}_{link.FromColumn}";
+
+            sb.AppendLine($"IF NOT EXISTS (");
+            sb.AppendLine($"  SELECT * FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS");
+            sb.AppendLine($"  WHERE CONSTRAINT_NAME = '{constraintName}'");
+            sb.AppendLine($")");
+            sb.AppendLine("BEGIN");
+            sb.AppendLine($"  ALTER TABLE {link.From}");
+            sb.AppendLine($"  ADD CONSTRAINT {constraintName}");
+            sb.AppendLine($"  FOREIGN KEY ({link.FromColumn}) REFERENCES {link.To}({link.ToColumn});");
+            sb.AppendLine("END");
+            sb.AppendLine();
+        }
+
+        return sb.ToString();
     }
 }

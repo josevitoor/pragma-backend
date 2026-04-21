@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Domain.DTO.Request;
 using Domain.Filter;
 using Microsoft.AspNetCore.Mvc;
 using Services;
@@ -39,5 +40,20 @@ public class GenerateController : ControllerBase
     {
         await _generateService.GenerateCrudFiles(generateFilter);
         return Ok();
+    }
+
+    /// <summary>
+    /// Gerar script SQL baseado em dados fornecidos
+    /// </summary>
+    /// <param name="generateSqlRequest"></param>
+    /// <response code="200">Sucesso</response>
+    /// <response code="401">Não autorizado</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [HttpPost("generate-sql")]
+    [ProducesResponseType(200)]
+    public async Task<IActionResult> GenerateSql([FromBody] GenerateSqlRequest generateSqlRequest)
+    {
+        var sql = _generateService.GenerateSql(generateSqlRequest);
+        return Ok(new { Sql = sql });
     }
 }
