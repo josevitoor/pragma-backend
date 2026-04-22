@@ -7,5 +7,4 @@ namespace Services;
 public interface IGenerateService
 {
     Task GenerateCrudFiles(GenerateFilter generateFilter);
-    string GenerateSql(GenerateSqlRequest generateSqlRequest);
 }
