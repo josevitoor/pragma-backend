@@ -30,15 +30,15 @@ public class GenerateController : ControllerBase
     /// <summary>
     /// Gerar código baseado em template
     /// </summary>
-    /// <param name="generateFilter"></param>
+    /// <param name="request"></param>
     /// <response code="200">Sucesso</response>
     /// <response code="401">Não autorizado</response>
     /// <response code="500">Erro interno do servidor</response>
     [HttpPost("generate-files")]
     [ProducesResponseType(200)]
-    public async Task<IActionResult> GenerateCrudFiles([FromBody] GenerateFilter generateFilter)
+    public async Task<IActionResult> GenerateCrudFiles([FromBody] GenerateBatchRequest request)
     {
-        await _generateService.GenerateCrudFiles(generateFilter);
+        await _generateService.GenerateCrudFilesList(request);
         return Ok();
     }
 }

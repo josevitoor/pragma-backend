@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using Domain.DTO.Request;
 using Domain.Entities;
 using Domain.Filter;
 using Microsoft.AspNetCore.Mvc;
@@ -43,5 +44,20 @@ public class InformationController : ControllerBase
         IEnumerable<Information> informations = await _informationService.GetAllInformations(filter);
 
         return Ok(informations);
+    }
+
+    /// <summary>
+    /// Executa script SQL nas conexões de banco de dados passadas
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <response code="200">Sucesso</response>
+    /// <response code="401">Não autorizado</response>
+    /// <response code="500">Erro interno do servidor</response>
+    [HttpPost("execute-script")]
+    public async Task<IActionResult> ExecuteScript([FromBody] ExecuteScriptDTO dto)
+    {
+        await _informationService.ExecuteScript(dto);
+
+        return Ok();
     }
 }

@@ -11,9 +11,6 @@ using System.Text.Json;
 using System;
 using LinqKit;
 using Domain.Entities;
-using Domain.DTO.Request;
-using System.Text;
-using System.Collections.Generic;
 
 namespace Services;
 
@@ -29,7 +26,15 @@ public class GenerateService : IGenerateService
         _configEstruturaService = configEstruturaService;
     }
 
-    public async Task GenerateCrudFiles(GenerateFilter generateFilter)
+    public async Task GenerateCrudFilesList(GenerateBatchRequest generateBatchRequest)
+    {
+        foreach (var item in generateBatchRequest.Items)
+        {
+            await GenerateCrudFiles(item);
+        }
+    }
+
+    private async Task GenerateCrudFiles(GenerateFilter generateFilter)
     {
         try
         {

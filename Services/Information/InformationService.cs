@@ -8,6 +8,7 @@ using TCE.Base.UnitOfWork;
 using FluentValidation;
 using Domain;
 using Domain.Filter;
+using Domain.DTO.Request;
 
 namespace Services;
 
@@ -53,5 +54,21 @@ public class InformationService : BaseService<Information>, IInformationService
             throw new ValidationException("Não foi possível conectar ao banco de dados com os dados fornecidos.");
 
         return dbContext;
+    }
+
+    public async Task ExecuteScript(ExecuteScriptDTO dto)
+    {
+        using var dbContext = await CreateDynamicDbContext(dto.Filter);
+
+        foreach (var tabela in dto.Tabelas)
+        {
+            var exists = await dbContext.Informations.AnyAsync(i => i.TableName.ToLower() == tabela.ToLower());
+            if (exists)
+            {
+                throw new ValidationException($"A tabela '{tabela}' já existe no banco, escolha outro tipo de geração de código.");
+            }
+        }
+
+        await dbContext.Database.ExecuteSqlRawAsync(dto.Script);
     }
 }
