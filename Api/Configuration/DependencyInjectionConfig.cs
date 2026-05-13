@@ -21,6 +21,7 @@ public static class DependencyInjectionConfig
     public static IServiceCollection ResolveDependencies(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(configuration);
+        services.AddTransient<IWorkspaceGeracaoService, WorkspaceGeracaoService>();
         services.AddTransient<IConfiguracaoEstruturaProjetoService, ConfiguracaoEstruturaProjetoService>();
         services.AddTransient<IConfiguracaoCaminhosService, ConfiguracaoCaminhosService>();
         services.AddTransient<IUnitOfWork, UnitOfWork<PragmaContext>>();

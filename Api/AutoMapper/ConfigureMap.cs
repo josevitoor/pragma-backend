@@ -16,6 +16,7 @@ public static class ConfigureMap
         var mapperConfig = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<ConfiguracaoCaminhosMap>();
+            cfg.AddProfile<WorkspaceGeracaoMap>();
             cfg.AddProfile<ConfiguracaoEstruturaProjetoMap>();
             cfg.AddProfile<ConfiguracaoConexaoBancoMappingProfile>();
         });
