@@ -66,7 +66,18 @@ public class {{ entity_name }}ControllerTests
             {
             {{~ for column in info_table ~}}
             {{~ if !column.is_identity ~}}
-            {{ column.column_name }} = {{~ if column.data_type | string.downcase | string.contains "char" || column.data_type | string.downcase | string.contains "text" ~}}"Teste"{{~ else if column.data_type | string.downcase | string.contains "date" ~}}DateTime.Now{{~ else if column.data_type | string.downcase | string.contains "time" ~}}TimeSpan.Zero{{~ else if column.data_type | string.downcase | string.contains "bit" ~}}true{{~ else ~}}1{{~ end ~}},
+            {{ column.column_name }} = {{~
+                if column.data_type == "varchar" || column.data_type == "nvarchar" || column.data_type == "char" || column.data_type == "nchar" || column.data_type == "text" || column.data_type == "ntext" ~}}
+            "Teste"
+            {{~ else if column.data_type == "date" || column.data_type == "datetime" || column.data_type == "datetime2" || column.data_type == "smalldatetime" || column.data_type == "datetimeoffset" ~}}
+            DateTime.Now
+            {{~ else if column.data_type == "time" ~}}
+            TimeSpan.Zero
+            {{~ else if column.data_type == "bit" ~}}
+            true
+            {{~ else ~}}
+            1
+            {{~ end ~}},
             {{~ end ~}}
             {{~ end ~}}
             }
