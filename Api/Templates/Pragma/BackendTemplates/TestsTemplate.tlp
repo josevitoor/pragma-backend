@@ -1,5 +1,3 @@
-{{~ entity_var = entity_name | string.slice(0, 1) | string.downcase | string.append (entity_name | string.slice(1)) ~}}
-
 using Xunit;
 using Moq;
 using System.Collections.Generic;
@@ -23,7 +21,7 @@ using TCE.Base.Repository._BaseRepository.Paging;
 using {{ import_paginate }};
 {{~ end ~}}
 
-namespace Tests.Application.Controllers;
+namespace Tests.Services;
 
 /* 
  * Arquivo gerado automaticamente pelo PRAGMA.
@@ -66,18 +64,11 @@ public class {{ entity_name }}ControllerTests
         {
             new()
             {
-                {{~ for column in info_table ~}}
-                {{~ if !column.is_identity ~}}
-                {{ column.column_name }} = {{ 
-                    column.data_type | string.downcase | string.contains "char" ? '"Teste"' :
-                    column.data_type | string.downcase | string.contains "text" ? '"Teste"' :
-                    column.data_type | string.downcase | string.contains "date" ? 'DateTime.Now' :
-                    column.data_type | string.downcase | string.contains "time" ? 'TimeSpan.Zero' :
-                    column.data_type | string.downcase | string.contains "bit" ? 'true' :
-                    '1'
-                }},
-                {{~ end ~}}
-                {{~ end ~}}
+            {{~ for column in info_table ~}}
+            {{~ if !column.is_identity ~}}
+            {{ column.column_name }} = {{~ if column.data_type | string.downcase | string.contains "char" || column.data_type | string.downcase | string.contains "text" ~}}"Teste"{{~ else if column.data_type | string.downcase | string.contains "date" ~}}DateTime.Now{{~ else if column.data_type | string.downcase | string.contains "time" ~}}TimeSpan.Zero{{~ else if column.data_type | string.downcase | string.contains "bit" ~}}true{{~ else ~}}1{{~ end ~}},
+            {{~ end ~}}
+            {{~ end ~}}
             }
         };
 
