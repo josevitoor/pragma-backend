@@ -50,6 +50,7 @@ public class GenerateService : IGenerateService
             await GenerateFileAsync("Service", generateFilter, $"{estrutura.ApiServices}\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura);
             await GenerateFileAsync("Validator", generateFilter, $"{estrutura.ApiServices}\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);
             await GenerateFileAsync("Mapper", generateFilter, $"Api\\AutoMapper", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura);
+            await GenerateFileAsync("Tests", generateFilter, $"Tests\\Services\\{generateFilter.EntityName}", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api, estrutura);
 
             if (generateFilter.TableColumnsFilter.Any())
                 await GenerateFileAsync("Filter", generateFilter, "Domain\\Filter", generateFilter.GenerateBackendFilter.ProjectApiPath, TemplateType.Api);

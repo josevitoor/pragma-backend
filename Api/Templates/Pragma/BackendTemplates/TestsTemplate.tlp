@@ -1,0 +1,261 @@
+{{~ entity_var = entity_name | string.slice(0, 1) | string.downcase | string.append (entity_name | string.slice(1)) ~}}
+
+using Xunit;
+using Moq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
+
+using Application.Controllers;
+using Domain.Entities;
+using Domain.DTO.Request;
+using Domain.DTO.Response;
+using Services;
+
+{{~ if table_columns_filter_list && table_columns_filter_list.size > 0 ~}}
+using Domain.Filter;
+{{~ end ~}}
+
+{{~ if is_server_side && has_tce_base ~}}
+using TCE.Base.Repository._BaseRepository.Paging;
+{{~ else if is_server_side && !has_tce_base ~}}
+using {{ import_paginate }};
+{{~ end ~}}
+
+namespace Tests.Application.Controllers;
+
+/* 
+ * Arquivo gerado automaticamente pelo PRAGMA.
+ * Template de testes unitários xUnit para operações CRUD.
+ * Este código pode ser ajustado ou expandido de acordo com suas necessidades.
+ */
+public class {{ entity_name }}ControllerTests
+{
+    private readonly Mock<I{{ entity_name }}Service> _serviceMock;
+
+    {{~ if has_tce_base ~}}
+    private readonly Mock<IMapper> _mapperMock;
+    {{~ end ~}}
+
+    private readonly {{ entity_name }}Controller _controller;
+
+    public {{ entity_name }}ControllerTests()
+    {
+        _serviceMock = new Mock<I{{ entity_name }}Service>();
+
+        {{~ if has_tce_base ~}}
+        _mapperMock = new Mock<IMapper>();
+
+        _controller = new {{ entity_name }}Controller(
+            _mapperMock.Object,
+            _serviceMock.Object
+        );
+        {{~ else ~}}
+        _controller = new {{ entity_name }}Controller(
+            _serviceMock.Object
+        );
+        {{~ end ~}}
+    }
+
+    [Fact]
+    public async Task GetAllAsync_DeveRetornarOk()
+    {
+        // Arrange
+        var entities = new List<{{ entity_name }}>
+        {
+            new()
+            {
+                {{~ for column in info_table ~}}
+                {{~ if !column.is_identity ~}}
+                {{ column.column_name }} = {{ 
+                    column.data_type | string.downcase | string.contains "char" ? '"Teste"' :
+                    column.data_type | string.downcase | string.contains "text" ? '"Teste"' :
+                    column.data_type | string.downcase | string.contains "date" ? 'DateTime.Now' :
+                    column.data_type | string.downcase | string.contains "time" ? 'TimeSpan.Zero' :
+                    column.data_type | string.downcase | string.contains "bit" ? 'true' :
+                    '1'
+                }},
+                {{~ end ~}}
+                {{~ end ~}}
+            }
+        };
+
+        var response = new List<{{ entity_name }}Get>();
+
+        {{~ if table_columns_filter_list && table_columns_filter_list.size > 0 ~}}
+        var filter = new {{ entity_name }}Filter();
+        {{~ end ~}}
+
+        _serviceMock
+            .Setup(x => x.GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}filter{{ end }}))
+            .ReturnsAsync(entities);
+
+        {{~ if has_tce_base ~}}
+        _mapperMock
+            .Setup(x => x.Map<IEnumerable<{{ entity_name }}Get>>(entities))
+            .Returns(response);
+        {{~ end ~}}
+
+        // Act
+        var result = await _controller.GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}filter{{ end }});
+
+        // Assert
+        Assert.IsType<OkObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_QuandoEncontrado_DeveRetornarOk()
+    {
+        // Arrange
+        var entity = new {{ entity_name }}
+        {
+            {{ primary_key_column }} = 1
+        };
+
+        var response = new {{ entity_name }}Get();
+
+        _serviceMock
+            .Setup(x => x.GetByIdAsync(1))
+            .ReturnsAsync(entity);
+
+        {{~ if has_tce_base ~}}
+        _mapperMock
+            .Setup(x => x.Map<{{ entity_name }}Get>(entity))
+            .Returns(response);
+        {{~ end ~}}
+
+        // Act
+        var result = await _controller.GetByIdAsync(1);
+
+        // Assert
+        Assert.IsType<OkObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_QuandoNaoEncontrado_DeveRetornarNotFound()
+    {
+        // Arrange
+        _serviceMock
+            .Setup(x => x.GetByIdAsync(1))
+            .ReturnsAsync(({{ entity_name }})null);
+
+        // Act
+        var result = await _controller.GetByIdAsync(1);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public void Create_DeveRetornarOk()
+    {
+        // Arrange
+        var dto = new {{ entity_name }}Post();
+
+        var entity = new {{ entity_name }}
+        {
+            {{ primary_key_column }} = 1
+        };
+
+        _serviceMock
+            .Setup(x => x.Add(It.IsAny<{{ entity_name }}>()))
+            .Returns(entity);
+
+        {{~ if has_tce_base ~}}
+        _mapperMock
+            .Setup(x => x.Map<{{ entity_name }}>(dto))
+            .Returns(entity);
+        {{~ end ~}}
+
+        // Act
+        var result = _controller.Create(dto);
+
+        // Assert
+        Assert.IsType<OkObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task Update_QuandoEncontrado_DeveRetornarOk()
+    {
+        // Arrange
+        var dto = new {{ entity_name }}Post();
+
+        var entity = new {{ entity_name }}
+        {
+            {{ primary_key_column }} = 1
+        };
+
+        _serviceMock
+            .Setup(x => x.GetByIdAsync(1))
+            .ReturnsAsync(entity);
+
+        _serviceMock
+            .Setup(x => x.Update(It.IsAny<{{ entity_name }}>()))
+            .Returns(entity);
+
+        {{~ if has_tce_base ~}}
+        _mapperMock
+            .Setup(x => x.Map(dto, entity))
+            .Returns(entity);
+        {{~ end ~}}
+
+        // Act
+        var result = await _controller.Update(1, dto);
+
+        // Assert
+        Assert.IsType<OkObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task Update_QuandoNaoEncontrado_DeveRetornarNotFound()
+    {
+        // Arrange
+        var dto = new {{ entity_name }}Post();
+
+        _serviceMock
+            .Setup(x => x.GetByIdAsync(1))
+            .ReturnsAsync(({{ entity_name }})null);
+
+        // Act
+        var result = await _controller.Update(1, dto);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task Delete_QuandoEncontrado_DeveRetornarNoContent()
+    {
+        // Arrange
+        var entity = new {{ entity_name }}
+        {
+            {{ primary_key_column }} = 1
+        };
+
+        _serviceMock
+            .Setup(x => x.GetByIdAsync(1))
+            .ReturnsAsync(entity);
+
+        // Act
+        var result = await _controller.Delete(1);
+
+        // Assert
+        Assert.IsType<NoContentResult>(result);
+    }
+
+    [Fact]
+    public async Task Delete_QuandoNaoEncontrado_DeveRetornarNotFound()
+    {
+        // Arrange
+        _serviceMock
+            .Setup(x => x.GetByIdAsync(1))
+            .ReturnsAsync(({{ entity_name }})null);
+
+        // Act
+        var result = await _controller.Delete(1);
+
+        // Assert
+        Assert.IsType<NotFoundResult>(result);
+    }
+}
