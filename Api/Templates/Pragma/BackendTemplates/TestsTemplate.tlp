@@ -59,27 +59,16 @@ public class {{ entity_name }}ControllerTests
     [Fact]
     public async Task GetAllAsync_DeveRetornarOk()
     {
-        // Arrange
+        // Preparação
         var entities = new List<{{ entity_name }}>
         {
             new()
             {
-            {{~ for column in info_table ~}}
-            {{~ if !column.is_identity ~}}
-            {{ column.column_name }} = {{~
-                if column.data_type == "varchar" || column.data_type == "nvarchar" || column.data_type == "char" || column.data_type == "nchar" || column.data_type == "text" || column.data_type == "ntext" ~}}
-            "Teste"
-            {{~ else if column.data_type == "date" || column.data_type == "datetime" || column.data_type == "datetime2" || column.data_type == "smalldatetime" || column.data_type == "datetimeoffset" ~}}
-            DateTime.Now
-            {{~ else if column.data_type == "time" ~}}
-            TimeSpan.Zero
-            {{~ else if column.data_type == "bit" ~}}
-            true
-            {{~ else ~}}
-            1
-            {{~ end ~}},
-            {{~ end ~}}
-            {{~ end ~}}
+                {{~ for column in info_table ~}}
+                {{~ if !column.is_identity ~}}
+                {{ column.column_name }} = {{ if column.data_type == "varchar" || column.data_type == "nvarchar" || column.data_type == "char" || column.data_type == "nchar" || column.data_type == "text" || column.data_type == "ntext" }}"Teste"{{ else if column.data_type == "date" || column.data_type == "datetime" || column.data_type == "datetime2" || column.data_type == "smalldatetime" || column.data_type == "datetimeoffset" }}DateTime.Now{{ else if column.data_type == "time" }}TimeSpan.Zero{{ else if column.data_type == "bit" }}true{{ else }}1{{ end }},
+                {{~ end ~}}
+                {{~ end ~}}
             }
         };
 
@@ -89,27 +78,23 @@ public class {{ entity_name }}ControllerTests
         var filter = new {{ entity_name }}Filter();
         {{~ end ~}}
 
-        _serviceMock
-            .Setup(x => x.GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}filter{{ end }}))
-            .ReturnsAsync(entities);
+        _serviceMock.Setup(x => x.GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}filter{{ end }})).ReturnsAsync(entities);
 
         {{~ if has_tce_base ~}}
-        _mapperMock
-            .Setup(x => x.Map<IEnumerable<{{ entity_name }}Get>>(entities))
-            .Returns(response);
+        _mapperMock.Setup(x => x.Map<IEnumerable<{{ entity_name }}Get>>(entities)).Returns(response);
         {{~ end ~}}
 
-        // Act
+        // Execução
         var result = await _controller.GetAllAsync({{ if table_columns_filter_list && table_columns_filter_list.size > 0 }}filter{{ end }});
 
-        // Assert
+        // Validação
         Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
     public async Task GetByIdAsync_QuandoEncontrado_DeveRetornarOk()
     {
-        // Arrange
+        // Preparação
         var entity = new {{ entity_name }}
         {
             {{ primary_key_column }} = 1
@@ -117,42 +102,36 @@ public class {{ entity_name }}ControllerTests
 
         var response = new {{ entity_name }}Get();
 
-        _serviceMock
-            .Setup(x => x.GetByIdAsync(1))
-            .ReturnsAsync(entity);
+        _serviceMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(entity);
 
         {{~ if has_tce_base ~}}
-        _mapperMock
-            .Setup(x => x.Map<{{ entity_name }}Get>(entity))
-            .Returns(response);
+        _mapperMock.Setup(x => x.Map<{{ entity_name }}Get>(entity)).Returns(response);
         {{~ end ~}}
 
-        // Act
+        // Execução
         var result = await _controller.GetByIdAsync(1);
 
-        // Assert
+        // Validação
         Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
     public async Task GetByIdAsync_QuandoNaoEncontrado_DeveRetornarNotFound()
     {
-        // Arrange
-        _serviceMock
-            .Setup(x => x.GetByIdAsync(1))
-            .ReturnsAsync(({{ entity_name }})null);
+        // Preparação
+        _serviceMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(({{ entity_name }})null);
 
-        // Act
+        // Execução
         var result = await _controller.GetByIdAsync(1);
 
-        // Assert
+        // Validação
         Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
     public void Create_DeveRetornarOk()
     {
-        // Arrange
+        // Preparação
         var dto = new {{ entity_name }}Post();
 
         var entity = new {{ entity_name }}
@@ -160,27 +139,23 @@ public class {{ entity_name }}ControllerTests
             {{ primary_key_column }} = 1
         };
 
-        _serviceMock
-            .Setup(x => x.Add(It.IsAny<{{ entity_name }}>()))
-            .Returns(entity);
+        _serviceMock.Setup(x => x.Add(It.IsAny<{{ entity_name }}>())).Returns(entity);
 
         {{~ if has_tce_base ~}}
-        _mapperMock
-            .Setup(x => x.Map<{{ entity_name }}>(dto))
-            .Returns(entity);
+        _mapperMock.Setup(x => x.Map<{{ entity_name }}>(dto)).Returns(entity);
         {{~ end ~}}
 
-        // Act
+        // Execução
         var result = _controller.Create(dto);
 
-        // Assert
+        // Validação
         Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
     public async Task Update_QuandoEncontrado_DeveRetornarOk()
     {
-        // Arrange
+        // Preparação
         var dto = new {{ entity_name }}Post();
 
         var entity = new {{ entity_name }}
@@ -188,76 +163,64 @@ public class {{ entity_name }}ControllerTests
             {{ primary_key_column }} = 1
         };
 
-        _serviceMock
-            .Setup(x => x.GetByIdAsync(1))
-            .ReturnsAsync(entity);
+        _serviceMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(entity);
 
-        _serviceMock
-            .Setup(x => x.Update(It.IsAny<{{ entity_name }}>()))
-            .Returns(entity);
+        _serviceMock.Setup(x => x.Update(It.IsAny<{{ entity_name }}>())).Returns(entity);
 
         {{~ if has_tce_base ~}}
-        _mapperMock
-            .Setup(x => x.Map(dto, entity))
-            .Returns(entity);
+        _mapperMock.Setup(x => x.Map(dto, entity)).Returns(entity);
         {{~ end ~}}
 
-        // Act
+        // Execução
         var result = await _controller.Update(1, dto);
 
-        // Assert
+        // Validação
         Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
     public async Task Update_QuandoNaoEncontrado_DeveRetornarNotFound()
     {
-        // Arrange
+        // Preparação
         var dto = new {{ entity_name }}Post();
 
-        _serviceMock
-            .Setup(x => x.GetByIdAsync(1))
-            .ReturnsAsync(({{ entity_name }})null);
+        _serviceMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(({{ entity_name }})null);
 
-        // Act
+        // Execução
         var result = await _controller.Update(1, dto);
 
-        // Assert
+        // Validação
         Assert.IsType<NotFoundResult>(result);
     }
 
     [Fact]
     public async Task Delete_QuandoEncontrado_DeveRetornarNoContent()
     {
-        // Arrange
+        // Preparação
         var entity = new {{ entity_name }}
         {
             {{ primary_key_column }} = 1
         };
 
-        _serviceMock
-            .Setup(x => x.GetByIdAsync(1))
-            .ReturnsAsync(entity);
+        _serviceMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(entity);
 
-        // Act
+        // Execução
         var result = await _controller.Delete(1);
 
-        // Assert
+        // Validação
         Assert.IsType<NoContentResult>(result);
     }
 
     [Fact]
     public async Task Delete_QuandoNaoEncontrado_DeveRetornarNotFound()
     {
-        // Arrange
-        _serviceMock
-            .Setup(x => x.GetByIdAsync(1))
-            .ReturnsAsync(({{ entity_name }})null);
+        // Preparação
+        _serviceMock.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(({{ entity_name }})null);
 
-        // Act
+        // Execução
         var result = await _controller.Delete(1);
 
-        // Assert
+        // Validação
         Assert.IsType<NotFoundResult>(result);
     }
 }

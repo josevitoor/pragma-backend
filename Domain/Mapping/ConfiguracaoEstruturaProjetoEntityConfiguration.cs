@@ -52,6 +52,11 @@ public class ConfiguracaoEstruturaProjetoEntityConfiguration : IEntityTypeConfig
             .HasColumnType("nvarchar")
             .IsRequired().HasMaxLength(100);
 
+        builder.Property(e => e.ApiTests)
+            .HasColumnName("ApiTests")
+            .HasColumnType("nvarchar")
+            .IsRequired().HasMaxLength(100);
+
         builder.Property(e => e.ApiImportInfraService)
             .HasColumnName("ApiImportInfraService")
             .HasColumnType("nvarchar")

@@ -23,6 +23,8 @@ public class ConfiguracaoEstruturaProjetoValidator : AbstractValidator<Configura
 
         RuleFor(p => p.ApiServices).NotEmpty().MaximumLength(100);
 
+        RuleFor(p => p.ApiTests).NotEmpty().MaximumLength(100);
+
         RuleFor(p => p.ApiImportInfraService).MaximumLength(50);
 
         RuleFor(p => p.ApiImportInfraIService).MaximumLength(50);

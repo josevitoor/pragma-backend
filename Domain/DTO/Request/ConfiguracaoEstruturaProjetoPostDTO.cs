@@ -19,6 +19,8 @@ public class ConfiguracaoEstruturaProjetoPost
 
     public string ApiServices { get; set; }
 
+    public string ApiTests { get; set; }
+
     public string ApiImportInfraService { get; set; }
 
     public string ApiImportInfraIService { get; set; }

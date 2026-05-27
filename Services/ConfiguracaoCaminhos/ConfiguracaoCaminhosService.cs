@@ -66,6 +66,7 @@ public class ConfiguracaoCaminhosService : BaseService<ConfiguracaoCaminhos>, IC
             estruturaProjeto.ApiMapping,
             estruturaProjeto.ApiContexts,
             estruturaProjeto.ApiServices,
+            estruturaProjeto.ApiTests,
         };
 
         var requiredClientPaths = new[]
